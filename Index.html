@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RHINOBUILD · Desarrollo de software a la medida</title>
+<meta name="description" content="RHINOBUILD desarrolla plataformas web, automatizaciones y herramientas con IA a la medida para empresas y organizaciones de salud.">
+<meta property="og:title" content="RHINOBUILD · Desarrollo de software a la medida">
+<meta property="og:description" content="Plataformas web, automatización e inteligencia artificial construidas para tu operación.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rhinobuild.org">
+<meta name="theme-color" content="#050f22">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<meta property="og:image" content="https://rhinobuild.org/assets/favicon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050f22; --bg-2:#081833; --panel:#0c2040; --line:#16294a; --line-2:#24406b;
+    --text:#eef3fb; --muted:#93a4c0; --dim:#5f7193;
+    --accent:#5aa9ff; --accent-2:#a9d1ff; --accent-ink:#04122b;
+    --radius:16px; --max:1160px;
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  @media (max-width:600px){.wrap{padding:0 16px}}
+
+  /* Background grid */
+  .grid-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:56px 56px;opacity:.35;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 75%)}
+  .glow{position:absolute;z-index:-1;width:720px;height:720px;border-radius:50%;filter:blur(120px);opacity:.18;pointer-events:none}
+
+  /* Nav */
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(5,15,34,.75);border-bottom:1px solid transparent;transition:border-color .2s}
+  header.scrolled{border-bottom-color:var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;letter-spacing:.06em;font-size:18px}
+  .brand img{height:46px;width:auto}
+  @media (max-width:600px){.brand img{height:38px}}
+  .nav ul{display:flex;gap:28px;list-style:none;font-size:14px;color:var(--muted)}
+  .nav ul a:hover{color:var(--text)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:12px 20px;border-radius:999px;transition:transform .15s,background .15s,border-color .15s}
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover{transform:translateY(-1px);background:#7dbcff}
+  .btn-ghost{border:1px solid var(--line-2);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--muted)}
+  .nav .btn{padding:9px 16px;font-size:14px}
+  .menu-btn{display:none;background:none;border:1px solid var(--line-2);color:var(--text);border-radius:10px;width:40px;height:40px;cursor:pointer}
+  @media (max-width:860px){
+    .nav ul{display:none;position:absolute;top:68px;left:0;right:0;flex-direction:column;gap:0;background:var(--bg-2);border-bottom:1px solid var(--line)}
+    .nav ul.open{display:flex}
+    .nav ul li a{display:block;padding:14px 16px;border-top:1px solid var(--line)}
+    .nav .btn{display:none}
+    .menu-btn{display:grid;place-items:center}
+  }
+
+  /* Hero */
+  .hero{position:relative;padding:110px 0 90px;overflow:hidden}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(90,169,255,.35);background:rgba(90,169,255,.08);padding:6px 12px;border-radius:999px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,6.4vw,76px);line-height:1.02;letter-spacing:-.025em;margin:24px 0 22px;max-width:14ch}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:58ch}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:72px;max-width:760px}
+  .hero-stats div{background:var(--bg-2);padding:20px 22px}
+  .hero-stats b{display:block;font-family:var(--display);font-size:26px;font-weight:600}
+  .hero-stats span{font-size:13px;color:var(--muted)}
+  @media (max-width:600px){.hero{padding:72px 0 64px}.hero-stats{grid-template-columns:1fr}}
+
+  /* Code card in hero */
+  .hero-inner{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center}
+  .term{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--radius);box-shadow:0 30px 80px -30px rgba(90,169,255,.3);overflow:hidden;font-family:var(--mono);font-size:13px}
+  .term-bar{display:flex;gap:6px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .term-bar i{width:10px;height:10px;border-radius:50%;background:var(--line-2)}
+  .term pre{padding:20px;color:var(--muted);line-height:1.75;white-space:pre-wrap}
+  .k{color:var(--accent-2)} .s{color:var(--accent)} .c{color:var(--dim)}
+  .caret{display:inline-block;width:8px;height:15px;background:var(--accent);vertical-align:-2px;animation:pulse 1s steps(1) infinite}
+  @media (max-width:960px){.hero-inner{grid-template-columns:1fr}.term{max-width:560px}}
+
+  /* Sections */
+  section{padding:96px 0;position:relative}
+  .sec-head{margin-bottom:48px;max-width:680px}
+  .label{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  h2{font-family:var(--display);font-weight:600;font-size:clamp(30px,4vw,46px);line-height:1.1;letter-spacing:-.02em}
+  .sec-head p{color:var(--muted);margin-top:16px;font-size:17px}
+  @media (max-width:600px){section{padding:72px 0}}
+
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media (max-width:960px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:640px){.cards{grid-template-columns:1fr}}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--radius);padding:28px;transition:border-color .2s,transform .2s}
+  .card:hover{border-color:var(--line-2);transform:translateY(-3px)}
+  .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(90,169,255,.1);border:1px solid rgba(90,169,255,.3);color:var(--accent);margin-bottom:20px}
+  .ico svg{width:22px;height:22px}
+  .card h3{font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:10px}
+  .card p{color:var(--muted);font-size:15px}
+
+  /* Projects */
+  .projects{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  @media (max-width:760px){.projects{grid-template-columns:1fr}}
+  .proj{border:1px solid var(--line);border-radius:var(--radius);padding:28px;background:var(--bg-2);display:flex;flex-direction:column;gap:14px}
+  .proj-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-2);border:1px solid rgba(169,209,255,.3);padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .proj h3{font-family:var(--display);font-size:22px;font-weight:600}
+  .proj p{color:var(--muted);font-size:15px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+  .chips span{font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:4px 10px;border-radius:8px}
+
+  /* Process */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .step{padding:28px;border-right:1px solid var(--line);background:var(--bg-2)}
+  .step:last-child{border-right:0}
+  .step .n{font-family:var(--mono);color:var(--accent);font-size:13px}
+  .step h3{font-family:var(--display);font-size:19px;margin:14px 0 8px;font-weight:600}
+  .step p{color:var(--muted);font-size:14.5px}
+  @media (max-width:860px){.steps{grid-template-columns:1fr 1fr}.step:nth-child(2){border-right:0}.step:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+  @media (max-width:520px){.steps{grid-template-columns:1fr}.step{border-right:0;border-bottom:1px solid var(--line)}.step:last-child{border-bottom:0}}
+
+  /* Stack */
+  .stack{display:flex;flex-wrap:wrap;gap:10px}
+  .stack span{font-family:var(--mono);font-size:13px;padding:10px 16px;border:1px solid var(--line-2);border-radius:10px;color:var(--text);background:var(--bg-2)}
+
+  /* About */
+  .about{display:grid;grid-template-columns:1fr 1.3fr;gap:56px;align-items:center}
+  .about-mark{aspect-ratio:1;border:1px solid var(--line);border-radius:24px;background:radial-gradient(circle at 50% 40%,rgba(90,169,255,.16),transparent 65%),var(--bg-2);display:grid;place-items:center}
+  .about-mark img{width:62%;height:auto}
+  .about p{color:var(--muted);font-size:17px;margin-top:16px}
+  .about p strong{color:var(--text);font-weight:600}
+  @media (max-width:860px){.about{grid-template-columns:1fr}.about-mark{max-width:280px}}
+
+  /* Contact */
+  .contact{border:1px solid var(--line-2);border-radius:28px;padding:64px 48px;text-align:center;position:relative;overflow:hidden;background:var(--bg-2)}
+  .contact::before{content:"";position:absolute;inset:-1px;background:radial-gradient(ellipse 60% 80% at 50% 120%,rgba(90,169,255,.22),transparent 70%);pointer-events:none}
+  .contact h2{max-width:18ch;margin:0 auto}
+  .contact p{color:var(--muted);max-width:52ch;margin:18px auto 32px;font-size:17px}
+  .mail{font-family:var(--mono);font-size:clamp(15px,2.4vw,20px);color:var(--accent);display:inline-block;margin-top:22px;border-bottom:1px dashed rgba(90,169,255,.45);padding-bottom:2px;word-break:break-all}
+  .copy-btn{background:none;border:1px solid var(--line-2);color:var(--muted);font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;margin-left:10px;cursor:pointer;vertical-align:middle}
+  .copy-btn:hover{color:var(--text);border-color:var(--muted)}
+  @media (max-width:600px){.contact{padding:48px 20px}}
+
+  footer{border-top:1px solid var(--line);padding:32px 0;color:var(--dim);font-size:14px}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+  .foot a:hover{color:var(--text)}
+
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+
+<header id="top">
+  <div class="wrap nav">
+    <a href="#top" class="brand" aria-label="RHINOBUILD inicio"><img src="assets/rhinobuild-logo-white.png" alt="RHINOBUILD"></a>
+    <button class="menu-btn" aria-label="Abrir menú" aria-expanded="false" id="menuBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <ul id="menu">
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#proyectos">Proyectos</a></li>
+      <li><a href="#proceso">Proceso</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <a href="#contacto" class="btn btn-primary">Cotiza tu proyecto</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="glow" style="background:var(--accent);top:-320px;left:-200px"></div>
+    <div class="glow" style="background:var(--accent-2);top:-200px;right:-300px"></div>
+    <div class="wrap hero-inner">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Desarrollo de software a la medida</span>
+        <h1>Construimos la tecnología que tu operación <span class="grad">necesita</span>.</h1>
+        <p class="lead">Plataformas web, automatizaciones e inteligencia artificial diseñadas para resolver problemas reales: menos papel, menos hojas de cálculo sueltas y procesos que funcionan solos.</p>
+        <div class="cta-row">
+          <a href="#contacto" class="btn btn-primary">Hablemos de tu proyecto
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a href="#proyectos" class="btn btn-ghost">Ver proyectos</a>
+        </div>
+      </div>
+      <div class="term" aria-hidden="true">
+        <div class="term-bar"><i></i><i></i><i></i></div>
+<pre><span class="c">// rhinobuild.deploy()</span>
+<span class="k">const</span> proyecto = {
+  problema: <span class="s">"procesos manuales"</span>,
+  solucion: <span class="s">"plataforma a la medida"</span>,
+  stack: [<span class="s">"web"</span>, <span class="s">"apps script"</span>, <span class="s">"IA"</span>],
+  entrega: <span class="s">"iterativa"</span>
+};
+
+<span class="k">await</span> construir(proyecto);
+<span class="c">// ✓ listo para producción</span> <span class="caret"></span></pre>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="hero-stats">
+        <div><b>A la medida</b><span>Nada de plantillas genéricas</span></div>
+        <div><b>Con IA</b><span>Integrada donde aporta valor</span></div>
+        <div><b>Multi-sede</b><span>Pensado para crecer contigo</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="servicios">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="label">Servicios</div>
+        <h2>Software que se adapta a ti, no al revés.</h2>
+        <p>Desde una herramienta interna puntual hasta una plataforma completa con usuarios, roles y reportes.</p>
+      </div>
+      <div class="cards">
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 21h8"/></svg></div>
+          <h3>Plataformas web</h3>
+          <p>Portales, intranets y sistemas de gestión accesibles desde cualquier dispositivo, con acceso por roles.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3>Automatización</h3>
+          <p>Flujos con Google Workspace y Apps Script: formularios, correos masivos, documentos y reportes automáticos.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 5.6L20 10l-5.6 2.4L12 18l-2.4-5.6L4 10l5.6-2.4z"/><path d="M19 17l.8 1.9 1.9.8-1.9.8L19 22l-.8-1.5-1.9-.8 1.9-.8z"/></svg></div>
+          <h3>Soluciones con IA</h3>
+          <p>Generación de contenido, análisis de documentos y asistentes que reducen horas de trabajo repetitivo.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 15v-4M12 15V8M16 15v-6"/></svg></div>
+          <h3>Dashboards y reportes</h3>
+          <p>Indicadores en tiempo real conectados a tus datos para tomar decisiones con información actualizada.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <h3>Evaluaciones digitales</h3>
+          <p>Exámenes, pruebas y encuestas en línea con calificación automática, resultados y constancias.</p>
+        </article>
+        <article class="card reveal">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+          <h3>Apps móviles web</h3>
+          <p>Herramientas para campo que usan cámara, GPS y funcionan desde el navegador del teléfono, sin instalar nada.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section id="proyectos">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="label">Proyectos</div>
+        <h2>Lo que hemos construido.</h2>
+        <p>Soluciones en producción para organizaciones con múltiples sedes y cientos de colaboradores.</p>
+      </div>
+      <div class="projects">
+        <article class="proj reveal">
+          <div class="proj-top"><h3>NEXOSalud</h3><span class="tag">IA · Capacitación</span></div>
+          <p>Plataforma que convierte documentos PDF o Word en cursos interactivos y presentaciones usando inteligencia artificial.</p>
+          <div class="chips"><span>IA generativa</span><span>GitHub Pages</span><span>Apps Script</span></div>
+        </article>
+        <article class="proj reveal">
+          <div class="proj-top"><h3>Checador facial</h3><span class="tag">Asistencia</span></div>
+          <p>Registro de asistencia multi-sede con validación facial y geolocalización, directo desde el celular.</p>
+          <div class="chips"><span>Reconocimiento facial</span><span>GPS</span><span>Google Sheets</span></div>
+        </article>
+        <article class="proj reveal">
+          <div class="proj-top"><h3>Centro de capacitación</h3><span class="tag">LMS</span></div>
+          <p>Plataforma de cursos y evaluaciones para personal, con seguimiento de avance y emisión de constancias.</p>
+          <div class="chips"><span>Evaluaciones</span><span>Constancias</span><span>Roles</span></div>
+        </article>
+        <article class="proj reveal">
+          <div class="proj-top"><h3>Reclutamiento con IA</h3><span class="tag">ATS</span></div>
+          <p>Sistema de selección con evaluaciones psicométricas digitales, búsqueda de candidatos y entrevistas asistidas por IA.</p>
+          <div class="chips"><span>Psicometría</span><span>IA</span><span>Pipeline</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO -->
+  <section id="proceso">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="label">Proceso</div>
+        <h2>De la idea a producción, sin rodeos.</h2>
+      </div>
+      <div class="steps reveal">
+        <div class="step"><span class="n">01</span><h3>Diagnóstico</h3><p>Entendemos tu proceso actual, sus cuellos de botella y lo que debe resolver la herramienta.</p></div>
+        <div class="step"><span class="n">02</span><h3>Diseño</h3><p>Definimos alcance, pantallas y flujo de datos. Validas antes de escribir una línea de código.</p></div>
+        <div class="step"><span class="n">03</span><h3>Construcción</h3><p>Desarrollo por entregas cortas para que veas avances reales y ajustes sobre la marcha.</p></div>
+        <div class="step"><span class="n">04</span><h3>Lanzamiento</h3><p>Puesta en producción, capacitación a usuarios y soporte para la mejora continua.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head reveal" style="margin-bottom:28px">
+        <div class="label">Tecnología</div>
+        <h2>Herramientas que dominamos.</h2>
+      </div>
+      <div class="stack reveal">
+        <span>HTML · CSS · JavaScript</span><span>Google Apps Script</span><span>Google Workspace</span>
+        <span>Google Sheets como backend</span><span>APIs de IA</span><span>GitHub Pages</span>
+        <span>Reconocimiento facial</span><span>Geolocalización</span><span>Generación de PDF</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOSOTROS -->
+  <section id="nosotros">
+    <div class="wrap about">
+      <div class="about-mark reveal"><img src="assets/rhinobuild-icon-white.png" alt="Ícono de RHINOBUILD"></div>
+      <div class="reveal">
+        <div class="label">Nosotros</div>
+        <h2>Tecnología con visión de negocio y de personas.</h2>
+        <p>RHINOBUILD nace de la experiencia directa dentro de organizaciones complejas, donde los procesos cruzan áreas, sedes y equipos. Por eso no solo programamos: <strong>entendemos cómo trabaja la gente que va a usar el sistema.</strong></p>
+        <p>Fundada por <strong>Fernando Carrillo</strong>, con formación en psicología y años liderando áreas de Capital Humano, RHINOBUILD combina ese conocimiento con desarrollo de software para crear herramientas que la gente realmente adopta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto">
+    <div class="wrap">
+      <div class="contact reveal">
+        <div class="label">Contacto</div>
+        <h2>¿Tienes un proceso que podría funcionar mejor?</h2>
+        <p>Cuéntanos qué necesitas. Te respondemos con una propuesta clara de alcance, tiempos y costo.</p>
+        <a class="btn btn-primary" href="mailto:fcarrillo@rhinobuild.org?subject=Proyecto%20con%20RHINOBUILD">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          Escríbenos un correo</a>
+        <div>
+          <a class="mail" href="mailto:fcarrillo@rhinobuild.org">fcarrillo@rhinobuild.org</a>
+          <button class="copy-btn" id="copyBtn" type="button">Copiar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a href="#top" class="brand"><img src="assets/rhinobuild-logo-white.png" alt="RHINOBUILD" style="height:36px"></a>
+    <span>© <span id="yr">2026</span> RHINOBUILD · Desarrollo de software a la medida</span>
+    <a href="https://github.com/RHINOBUILD" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  const header = document.querySelector('header');
+  addEventListener('scroll', () => header.classList.toggle('scrolled', scrollY > 8), {passive:true});
+
+  const menu = document.getElementById('menu'), menuBtn = document.getElementById('menuBtn');
+  menuBtn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open);
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), {threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  document.getElementById('copyBtn').addEventListener('click', async (ev) => {
+    try { await navigator.clipboard.writeText('fcarrillo@rhinobuild.org'); ev.target.textContent = '¡Copiado!'; }
+    catch { ev.target.textContent = 'fcarrillo@rhinobuild.org'; }
+    setTimeout(() => ev.target.textContent = 'Copiar', 2000);
+  });
+</script>
+</body>
+</html>
