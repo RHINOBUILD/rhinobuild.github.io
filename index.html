@@ -15,7 +15,7 @@
 <meta property="og:image" content="https://rhinobuild.github.io/assets/favicon-512.png">
 <link rel="canonical" href="https://rhinobuild.github.io/">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"RHINOBUILD","url":"https://rhinobuild.github.io","logo":"https://rhinobuild.github.io/assets/favicon-512.png","email":"fcarrillo@rhinobuild.org","description":"Desarrollo de software a la medida: plataformas web, automatización e inteligencia artificial.","sameAs":["https://github.com/RHINOBUILD"]}
+{"@context":"https://schema.org","@type":"Organization","name":"RHINOBUILD","url":"https://rhinobuild.github.io","logo":"https://rhinobuild.github.io/assets/favicon-512.png","email":"contacto@rhinobuild.org","description":"Desarrollo de software a la medida: plataformas web, automatización e inteligencia artificial.","sameAs":["https://github.com/RHINOBUILD"]}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -499,7 +499,7 @@
             <p>Cuéntanos qué necesitas. Te respondemos con una propuesta clara de alcance, tiempos y costo.</p>
             <ul class="contact-list">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-                <span><a class="mail" style="margin:0;font-size:16px" href="mailto:fcarrillo@rhinobuild.org">fcarrillo@rhinobuild.org</a><button class="copy-btn" id="copyBtn" type="button">Copiar</button></span></li>
+                <span><a class="mail" style="margin:0;font-size:16px" href="mailto:contacto@rhinobuild.org">contacto@rhinobuild.org</a><button class="copy-btn" id="copyBtn" type="button">Copiar</button></span></li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Respuesta en menos de 48 horas hábiles</li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0119 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Baja California Sur · Atención en todo México</li>
             </ul>
@@ -553,7 +553,7 @@
       </div>
       <div>
         <h4>Contacto</h4>
-        <ul><li><a href="mailto:fcarrillo@rhinobuild.org">fcarrillo@rhinobuild.org</a></li><li><a href="aviso-de-privacidad.html">Aviso de privacidad</a></li></ul>
+        <ul><li><a href="mailto:contacto@rhinobuild.org">contacto@rhinobuild.org</a></li><li><a href="aviso-de-privacidad.html">Aviso de privacidad</a></li></ul>
       </div>
     </div>
     <div class="foot">
@@ -581,8 +581,8 @@
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   document.getElementById('copyBtn').addEventListener('click', async (ev) => {
-    try { await navigator.clipboard.writeText('fcarrillo@rhinobuild.org'); ev.target.textContent = '¡Copiado!'; }
-    catch { ev.target.textContent = 'fcarrillo@rhinobuild.org'; }
+    try { await navigator.clipboard.writeText('contacto@rhinobuild.org'); ev.target.textContent = '¡Copiado!'; }
+    catch { ev.target.textContent = 'contacto@rhinobuild.org'; }
     setTimeout(() => ev.target.textContent = 'Copiar', 2000);
   });
 
@@ -598,8 +598,8 @@
       `Nombre: ${d.nombre}`, `Empresa: ${d.empresa || '-'}`, `Correo: ${d.correo}`,
       `Teléfono: ${d.telefono || '-'}`, `Tipo de proyecto: ${d.tipo}`, '', d.mensaje
     ].join('\n');
-    location.href = `mailto:fcarrillo@rhinobuild.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    note.innerHTML = '¿No se abrió tu correo? Escríbenos directamente a <a href="mailto:fcarrillo@rhinobuild.org">fcarrillo@rhinobuild.org</a>.';
+    location.href = `mailto:contacto@rhinobuild.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    note.innerHTML = '¿No se abrió tu correo? Escríbenos directamente a <a href="mailto:contacto@rhinobuild.org">contacto@rhinobuild.org</a>.';
   });
 </script>
 </body>
