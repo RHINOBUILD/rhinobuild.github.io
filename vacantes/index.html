@@ -318,8 +318,8 @@
               <label for="consentimiento">He leído el <a id="lnkPrivacidad" href="#" target="_blank" rel="noopener">aviso de privacidad</a> y acepto que mis datos se usen para este proceso de selección.</label>
             </div>
             <div class="check">
-              <input id="banco" type="checkbox" checked>
-              <label for="banco">Quiero formar parte del banco de talento para que me consideren en futuras vacantes.</label>
+              <input id="banco" type="checkbox">
+              <label for="banco">Quiero formar parte del banco de talento para que me consideren en futuras vacantes <small>(opcional)</small>.</label>
             </div>
             <button class="btn btn-primary btn-block" id="btnEnviar" type="submit"><i class="fa-solid fa-paper-plane"></i> <span>Enviar postulación</span></button>
           </form>
@@ -355,7 +355,7 @@ const CONFIG = {
 
 const $ = id => document.getElementById(id);
 const MXN = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
-const ACENTOS = /[̀-ͯ]/g;
+const ACENTOS = /[\u0300-\u036f]/g;
 let VACANTES = [], ORG = { nombre: CONFIG.ORG_NAME }, MAX_MB = 5;
 let actual = null, sedeSel = '';
 
@@ -424,6 +424,7 @@ function chips(v) {
   return c.join('');
 }
 
+const TODAS = s => /^todas/i.test(String(s || '').trim());   // "Todas las sedes" aparece dentro de cada sede
 const urlVacante = id => location.origin + location.pathname + '?v=' + encodeURIComponent(id);
 
 /* ---------- API del ATS ---------- */
@@ -468,7 +469,7 @@ async function cargar() {
 function llenarFiltros() {
   const uniq = k => [...new Set(VACANTES.map(v => v[k]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
   uniq('area').forEach(a => $('fArea').insertAdjacentHTML('beforeend', `<option>${esc(a)}</option>`));
-  const sedes = uniq('sede');
+  const sedes = uniq('sede').filter(x => !TODAS(x));
   const q = new URLSearchParams(location.search);
   if (q.get('area')) $('fArea').value = q.get('area');
   if (q.get('sede') && sedes.includes(q.get('sede'))) sedeSel = q.get('sede');
@@ -482,7 +483,7 @@ function pintarLista() {
   const t = norm($('fTexto').value.trim());
   const area = $('fArea').value;
   const res = VACANTES.filter(v =>
-    (!sedeSel || v.sede === sedeSel) && (!area || v.area === area) &&
+    (!sedeSel || v.sede === sedeSel || TODAS(v.sede)) && (!area || v.area === area) &&
     (!t || norm(v.puesto + ' ' + v.area + ' ' + v.sede).includes(t)));
 
   $('conteo').textContent = res.length === 1 ? '1 vacante' : `${res.length} vacantes`;
