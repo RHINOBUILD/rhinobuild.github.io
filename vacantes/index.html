@@ -229,7 +229,7 @@
         <h2 id="route-title">Cómo postularte</h2>
         <ol>
           <li><div><strong>Elige tu vacante</strong><span>Filtra por sede, área o puesto.</span></div></li>
-          <li><div><strong>Envía tu solicitud</strong><span>Menos de 2 minutos desde tu celular; el CV es opcional.</span></div></li>
+          <li><div><strong>Envía tu solicitud</strong><span>Menos de 2 minutos desde tu celular. Ten a la mano tu CV en PDF.</span></div></li>
           <li><div><strong>Te contactamos</strong><span>Si tu perfil avanza, te llamamos o escribimos por WhatsApp.</span></div></li>
         </ol>
       </aside>
@@ -299,29 +299,27 @@
             <div class="two">
               <label class="field"><span>Teléfono / WhatsApp</span>
                 <input class="input" id="telefono" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="10 dígitos" required maxlength="14"></label>
-              <label class="field"><span>Correo <small>(opcional)</small></span>
-                <input class="input" id="correo" type="email" autocomplete="email" maxlength="120"></label>
+              <label class="field"><span>Correo electrónico</span>
+                <input class="input" id="correo" type="email" autocomplete="email" required maxlength="120"></label>
             </div>
             <div class="two">
               <label class="field"><span>¿Dónde vives?</span>
-                <input class="input" id="ciudad" autocomplete="address-level2" maxlength="80"></label>
-              <label class="field"><span>Experiencia en el puesto</span>
-                <select class="select" id="experiencia">
-                  <option value="">Selecciona…</option>
-                  <option>Sin experiencia</option><option>Menos de 1 año</option>
-                  <option>1 a 3 años</option><option>3 a 5 años</option><option>Más de 5 años</option>
-                </select></label>
+                <input class="input" id="ciudad" autocomplete="address-level2" required maxlength="80" placeholder="Ciudad"></label>
+              <label class="field"><span>Cédula profesional <small>(si aplica)</small></span>
+                <input class="input" id="cedula" inputmode="numeric" maxlength="20"></label>
             </div>
-            <label class="field"><span>CV <small>(opcional · PDF, Word o foto · máx. 5 MB)</small></span>
-              <input class="input" id="cv" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"></label>
-            <label class="field"><span>Cuéntanos algo de ti <small>(opcional)</small></span>
-              <textarea class="input" id="mensaje" rows="3" maxlength="1000"></textarea></label>
+            <label class="field"><span>CV en PDF <small id="cvMax">(máx. 5 MB)</small></span>
+              <input class="input" id="cv" type="file" accept=".pdf,application/pdf" required></label>
             <div class="hp" aria-hidden="true">
               <label for="website">No llenar</label><input id="website" tabindex="-1" autocomplete="off">
             </div>
             <div class="check">
               <input id="consentimiento" type="checkbox" required>
               <label for="consentimiento">He leído el <a id="lnkPrivacidad" href="#" target="_blank" rel="noopener">aviso de privacidad</a> y acepto que mis datos se usen para este proceso de selección.</label>
+            </div>
+            <div class="check">
+              <input id="banco" type="checkbox">
+              <label for="banco">Quiero que conserven mi perfil para considerarme en vacantes futuras <small>(opcional)</small>.</label>
             </div>
             <button class="btn btn-primary btn-block" id="btnEnviar" type="submit"><i class="fa-solid fa-paper-plane"></i> <span>Enviar postulación</span></button>
           </form>
@@ -330,7 +328,7 @@
           <div class="seal"><i class="fa-solid fa-check"></i></div>
           <h2 id="doneTitulo">¡Postulación recibida!</h2>
           <p>Tu folio es <span class="folio" id="doneFolio"></span></p>
-          <p style="font-size:.92rem">Si tu perfil avanza, te contactaremos por llamada o WhatsApp.</p>
+          <p style="font-size:.92rem">Te enviamos una confirmación por correo. Si tu perfil avanza, te contactaremos por llamada o WhatsApp.</p>
           <button class="btn btn-ghost btn-block" style="margin-top:1.4rem" id="btnOtras">Ver otras vacantes</button>
         </div>
       </aside>
@@ -348,7 +346,7 @@
 <script>
 /* ================= CONFIGURACIÓN ================= */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbz-JKG0oqgpTfxBxYCJqAAytvupqHPDHJ6NmWj1DEuq1Ua7VY5pBXifOuxHA8FjHYAw/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbzY_9Wb7GkB4hNJpe571PqTnNsvK7ZX5SmaYVm49Q621PD-zVgCxOkDzftVj__TD3Q9/exec',   // ATS Saint Luke's
   PRIVACY_URL: 'https://rhinobuild.github.io/BPH360/aviso-privacidad-candidatos.html',
   CANAL_WHATSAPP: '',   // Enlace del Canal de WhatsApp (opcional)
   ORG_NAME: "Saint Luke's Hospitals"
@@ -358,7 +356,8 @@ const CONFIG = {
 const $ = id => document.getElementById(id);
 const MXN = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
 const ACENTOS = /[̀-ͯ]/g;
-let VACANTES = [], ORG = { nombre: CONFIG.ORG_NAME };
+let VACANTES = [], ORG = { nombre: CONFIG.ORG_NAME }, MAX_MB = 5;
+const api = body => fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }).then(r => r.json());
 let actual = null, sedeSel = '';
 
 /* ---------- Seguimiento de fuente (?src=, ?ref=, utm) ---------- */
@@ -412,30 +411,36 @@ function meta(v) {
   return [
     v.sede && `<span><i class="fa-solid fa-location-dot"></i>${esc(v.sede)}</span>`,
     v.area && `<span><i class="fa-solid fa-stethoscope"></i>${esc(v.area)}</span>`,
-    v.tipo && `<span><i class="fa-solid fa-file-signature"></i>${esc(v.tipo)}</span>`,
-    v.turno && `<span><i class="fa-regular fa-clock"></i>Turno ${esc(v.turno.toLowerCase())}</span>`
+    v.jornada && `<span><i class="fa-regular fa-clock"></i>${esc(v.jornada)}</span>`,
+    v.empresa && v.empresa !== ORG.nombre && `<span><i class="fa-solid fa-building"></i>${esc(v.empresa)}</span>`
   ].filter(Boolean).join('');
 }
 
 function chips(v) {
   const c = [];
   if (v.sede) c.push(`<span class="chip"><i class="fa-solid fa-location-dot"></i>${esc(v.sede)}</span>`);
-  if (v.tipo) c.push(`<span class="chip"><i class="fa-solid fa-file-signature"></i>${esc(v.tipo)}</span>`);
-  if (v.turno) c.push(`<span class="chip"><i class="fa-regular fa-clock"></i>Turno ${esc(v.turno.toLowerCase())}</span>`);
+  if (v.jornada) c.push(`<span class="chip"><i class="fa-regular fa-clock"></i>${esc(v.jornada)}</span>`);
+  if (v.empresa && v.empresa !== ORG.nombre) c.push(`<span class="chip"><i class="fa-solid fa-building"></i>${esc(v.empresa)}</span>`);
   const s = sueldoTxt(v); if (s) c.push(`<span class="chip chip-gold"><i class="fa-solid fa-sack-dollar"></i>${esc(s)}</span>`);
   return c.join('');
 }
 
+/** "A · B · C" (formato del ATS) → viñetas */
+const lista = t => String(t || '').split(/\s+·\s+|\r?\n/).map(x => x.trim().replace(/^[-•*·]\s*/, '')).filter(Boolean).map(x => '- ' + x).join('\n');
+const lugar = u => [u.localidad, u.estado].filter(Boolean).join(', ');
+
+const TODAS = s => /^todas/i.test(String(s || '').trim());
 const urlVacante = id => location.origin + location.pathname + '?v=' + encodeURIComponent(id);
 
 /* ---------- Carga ---------- */
 async function cargar() {
   try {
-    const r = await fetch(CONFIG.API_URL + '?action=vacantes', { cache: 'no-store' });
-    const data = await r.json();
+    const data = await api({ action: 'vacantes_web' });
     if (!data.ok) throw new Error(data.error);
     VACANTES = data.vacantes || [];
     ORG = Object.assign(ORG, data.org || {});
+    if (data.maxMb) { MAX_MB = data.maxMb; $('cvMax').textContent = `(máx. ${MAX_MB} MB)`; }
+    if (data.aviso) $('lnkPrivacidad').href = $('lnkPrivacidadPie').href = data.aviso;
     llenarFiltros();
     ruta();
   } catch (e) {
@@ -449,7 +454,7 @@ async function cargar() {
 function llenarFiltros() {
   const uniq = k => [...new Set(VACANTES.map(v => v[k]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
   uniq('area').forEach(a => $('fArea').insertAdjacentHTML('beforeend', `<option>${esc(a)}</option>`));
-  const sedes = uniq('sede');
+  const sedes = uniq('sede').filter(x => !TODAS(x));   // "Todas las sedes" aparece dentro de cada sede
   const q = new URLSearchParams(location.search);
   if (q.get('area')) $('fArea').value = q.get('area');
   if (q.get('sede') && sedes.includes(q.get('sede'))) sedeSel = q.get('sede');
@@ -463,7 +468,7 @@ function pintarLista() {
   const t = norm($('fTexto').value.trim());
   const area = $('fArea').value;
   const res = VACANTES.filter(v =>
-    (!sedeSel || v.sede === sedeSel) && (!area || v.area === area) &&
+    (!sedeSel || v.sede === sedeSel || TODAS(v.sede)) && (!area || v.area === area) &&
     (!t || norm(v.puesto + ' ' + v.area + ' ' + v.sede).includes(t)));
 
   $('conteo').textContent = res.length === 1 ? '1 vacante' : `${res.length} vacantes`;
@@ -486,7 +491,7 @@ function pintarLista() {
 /* ---------- Vista detalle ---------- */
 function pintarDetalle(v) {
   actual = v;
-  const u = v.ubicacion || {};
+  const u = (v.ubicaciones || [])[0] || {};
   $('dKicker').textContent = [v.area, v.empresa].filter(Boolean).join(' · ') || 'Vacante';
   $('dPuesto').textContent = v.puesto;
   $('dMeta').innerHTML = chips(v);
@@ -495,9 +500,11 @@ function pintarDetalle(v) {
   $('dCuerpo').innerHTML =
     (s ? sec('fa-sack-dollar', 'Sueldo', `<p class="salary">${esc(s)}</p>`) : '') +
     (v.descripcion ? sec('fa-briefcase-medical', 'Sobre el puesto', bloque(v.descripcion)) : '') +
-    (v.requisitos ? sec('fa-list-check', 'Requisitos', bloque(v.requisitos)) : '') +
-    (v.prestaciones ? sec('fa-gift', 'Ofrecemos', bloque(v.prestaciones)) : '') +
-    sec('fa-location-dot', 'Ubicación', `<p>${esc([u.calle, u.localidad || v.sede, u.estado].filter(Boolean).join(', '))}</p>`);
+    (v.requisitos ? sec('fa-list-check', 'Requisitos', bloque(lista(v.requisitos))) : '') +
+    (v.prestaciones ? sec('fa-gift', 'Ofrecemos', bloque(lista(v.prestaciones))) : '') +
+    sec('fa-location-dot', 'Ubicación', (v.ubicaciones || []).length > 1
+      ? `<p>${esc(v.sede)}</p><ul>${v.ubicaciones.map(x => `<li>${esc(lugar(x))}</li>`).join('')}</ul>`
+      : `<p>${esc([u.calle, u.localidad || v.sede, u.estado].filter(Boolean).join(', '))}</p>`);
 
   // Reinicia formulario
   $('formPost').reset(); $('formMsg').hidden = true; $('formWrap').hidden = false; $('formDone').hidden = true;
@@ -521,14 +528,18 @@ function pintarDetalle(v) {
 
 function jsonLd(v) {
   document.querySelectorAll('script[data-jobposting]').forEach(n => n.remove());
-  const tipo = { 'Tiempo completo': 'FULL_TIME', 'Medio tiempo': 'PART_TIME', 'Temporal': 'TEMPORARY',
-    'Por honorarios': 'CONTRACTOR', 'Prácticas / Servicio social': 'INTERN' }[v.tipo];
+  const j = norm(v.jornada || '');
+  const tipo = /tiempo completo/.test(j) ? 'FULL_TIME' : /medio tiempo/.test(j) ? 'PART_TIME' : /temporal/.test(j) ? 'TEMPORARY'
+    : /honorarios/.test(j) ? 'CONTRACTOR' : /practicas|servicio social/.test(j) ? 'INTERN' : '';
   const html = [
     v.descripcion && '<p><b>Sobre el puesto</b></p>' + bloque(v.descripcion),
-    v.requisitos && '<p><b>Requisitos</b></p>' + bloque(v.requisitos),
-    v.prestaciones && '<p><b>Ofrecemos</b></p>' + bloque(v.prestaciones)
+    v.requisitos && '<p><b>Requisitos</b></p>' + bloque(lista(v.requisitos)),
+    v.prestaciones && '<p><b>Ofrecemos</b></p>' + bloque(lista(v.prestaciones))
   ].filter(Boolean).join('');
-  const u = v.ubicacion || {};
+  const lugares = (v.ubicaciones && v.ubicaciones.length ? v.ubicaciones : [{ localidad: v.sede }]).map(u => ({
+    '@type': 'Place', address: Object.assign({ '@type': 'PostalAddress', addressCountry: u.pais || 'MX' },
+      u.calle ? { streetAddress: u.calle } : {}, u.localidad ? { addressLocality: u.localidad } : {},
+      u.estado ? { addressRegion: u.estado } : {}, u.cp ? { postalCode: u.cp } : {}) }));
   const data = {
     '@context': 'https://schema.org/', '@type': 'JobPosting',
     title: v.puesto,
@@ -537,9 +548,7 @@ function jsonLd(v) {
     datePosted: v.publicada,
     hiringOrganization: Object.assign({ '@type': 'Organization', name: v.empresa || ORG.nombre },
       ORG.url ? { sameAs: ORG.url } : {}, ORG.logo ? { logo: ORG.logo } : {}),
-    jobLocation: { '@type': 'Place', address: Object.assign({ '@type': 'PostalAddress', addressCountry: u.pais || 'MX' },
-      u.calle ? { streetAddress: u.calle } : {}, { addressLocality: u.localidad || v.sede },
-      u.estado ? { addressRegion: u.estado } : {}, u.cp ? { postalCode: u.cp } : {}) },
+    jobLocation: lugares.length === 1 ? lugares[0] : lugares,
     directApply: true
   };
   if (v.vigente) data.validThrough = v.vigente + 'T23:59:59';
@@ -616,34 +625,29 @@ $('formPost').addEventListener('submit', async e => {
   const nombre = $('nombre').value.trim();
   const tel = $('telefono').value.replace(/\D/g, '').slice(-10);
   const correo = $('correo').value.trim();
+  const ciudad = $('ciudad').value.trim();
+  const f = $('cv').files[0];
   if (nombre.split(/\s+/).length < 2) return error('Escribe tu nombre y apellido.');
   if (tel.length !== 10) return error('El teléfono debe tener 10 dígitos.');
-  if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return error('Revisa tu correo electrónico.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return error('Escribe un correo válido: ahí te enviamos la confirmación.');
+  if (!ciudad) return error('Escribe la ciudad donde vives.');
+  if (!f) return error('Adjunta tu CV en PDF.');
+  if (!/\.pdf$/i.test(f.name) && f.type !== 'application/pdf') return error('El CV debe ser un archivo PDF.');
+  if (f.size > MAX_MB * 1024 * 1024) return error(`Tu CV pesa más de ${MAX_MB} MB. Sube uno más ligero.`);
   if (!$('consentimiento').checked) return error('Para continuar, acepta el aviso de privacidad.');
 
   const btn = $('btnEnviar'), lbl = btn.querySelector('span');
   btn.disabled = true; lbl.textContent = 'Enviando…';
   try {
-    let cv = null;
-    const f = $('cv').files[0];
-    if (f) {
-      if (f.size > 5 * 1024 * 1024) throw new Error('Tu CV pesa más de 5 MB. Sube uno más ligero.');
-      const ext = (f.name.split('.').pop() || '').toLowerCase();
-      const mime = f.type || { pdf: 'application/pdf', doc: 'application/msword',
-        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png' }[ext];
-      cv = { name: f.name, mime, data: await leerArchivo(f) };
-    }
-    const body = {
-      vacanteId: actual.id, nombre, telefono: tel, correo,
-      ciudad: $('ciudad').value.trim(), experiencia: $('experiencia').value, mensaje: $('mensaje').value.trim(),
-      consentimiento: true, website: $('website').value, cv,
+    const data = await api({
+      action: 'postular_web', vacanteId: actual.id, nombre, telefono: tel, email: correo, ciudad,
+      cedula: $('cedula').value.trim(), cvBase64: await leerArchivo(f), cvNombre: f.name,
+      aviso: true, banco: $('banco').checked, website: $('website').value,
       src: TRACK.src, ref: TRACK.ref || '', campana: TRACK.campana || ''
-    };
-    const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
-    const data = await r.json();
+    });
     if (!data.ok) throw new Error(data.error || 'No se pudo enviar.');
     $('doneTitulo').textContent = data.duplicado ? 'Ya tenemos tu postulación' : '¡Postulación recibida!';
-    $('doneFolio').textContent = data.folio;
+    $('doneFolio').textContent = data.folio || '—';
     $('formWrap').hidden = true; $('formDone').hidden = false;
   } catch (err) {
     error(err.message && !/fetch|network/i.test(err.message) ? err.message : 'No pudimos enviar tu postulación. Revisa tu conexión e inténtalo de nuevo.');
