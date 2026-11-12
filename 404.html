@@ -2,6 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<script>
+/* Bolsa de Trabajo: una vacante recién abierta aún sin página fija (/vacantes/ID/) se abre por ?v=ID */
+(function(){var m=location.pathname.match(/^\/vacantes\/([A-Za-z0-9_-]+)\/?$/);
+if(m)location.replace('/vacantes/?v='+encodeURIComponent(m[1])+(location.search?'&'+location.search.slice(1):''));})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Página no encontrada · RHINOBUILD</title>
 <meta name="robots" content="noindex">

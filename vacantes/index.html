@@ -134,7 +134,7 @@
   .chip-filter[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 
   .ledger{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
-  .job{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:1fr;gap:.75rem;padding:1.15rem 1.3rem;border-top:1px solid var(--line-soft);cursor:pointer;position:relative}
+  .job{all:unset;box-sizing:border-box;color:inherit;text-decoration:none;width:100%;display:grid;grid-template-columns:1fr;gap:.75rem;padding:1.15rem 1.3rem;border-top:1px solid var(--line-soft);cursor:pointer;position:relative}
   .job:first-child{border-top:0}
   .job::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .15s}
   .job:hover{background:#FAFCFE}
@@ -203,12 +203,12 @@
 
 <header class="topbar">
   <div class="wrap">
-    <a class="brand" href="./" id="homeLink">
-      <img src="logo-saint-lukes.png" alt="Saint Luke's Hospitals" id="logoImg">
+    <a class="brand" href="/vacantes/" id="homeLink">
+      <img src="/vacantes/logo-saint-lukes.png" alt="Saint Luke's Hospitals" id="logoImg">
       <span class="fallback" id="logoTxt" hidden>Saint Luke's</span>
       <span class="brand-text"><strong>Bolsa de Trabajo</strong><small>Capital Humano · Grupo Saint Luke's</small></span>
     </a>
-    <a class="btn btn-primary btn-sm" href="#vacantes" id="btnTop"><i class="fa-solid fa-briefcase"></i> Ver vacantes</a>
+    <a class="btn btn-primary btn-sm" href="/vacantes/#vacantes" id="btnTop"><i class="fa-solid fa-briefcase"></i> Ver vacantes</a>
   </div>
 </header>
 
@@ -425,7 +425,14 @@ function chips(v) {
 }
 
 const TODAS = s => /^todas/i.test(String(s || '').trim());   // "Todas las sedes" aparece dentro de cada sede
-const urlVacante = id => location.origin + location.pathname + '?v=' + encodeURIComponent(id);
+/* Cada vacante tiene su página fija /vacantes/ID/ (la genera GitHub Actions para Google for Jobs).
+   Los enlaces antiguos ?v=ID siguen funcionando. */
+const BASE = '/vacantes/';
+const urlVacante = id => location.origin + BASE + encodeURIComponent(id) + '/';
+function idActual() {
+  const m = location.pathname.match(/^\/vacantes\/([A-Za-z0-9_-]+)\/?$/);
+  return m ? decodeURIComponent(m[1]) : new URLSearchParams(location.search).get('v');
+}
 
 /* ---------- API del ATS ---------- */
 async function api(body) {
@@ -495,11 +502,11 @@ function pintarLista() {
   }
   $('lista').innerHTML = res.map(v => {
     const s = sueldoTxt(v);
-    return `<button class="job" data-id="${esc(v.id)}">
+    return `<a class="job" href="${BASE}${encodeURIComponent(v.id)}/" data-id="${esc(v.id)}">
       <div><div class="job-title">${esc(v.puesto)}</div><div class="job-meta">${meta(v)}</div></div>
       <div class="job-side">${s ? `<span class="chip chip-gold">${esc(s)}</span>` : ''}
         <span class="job-go">Ver vacante <i class="fa-solid fa-arrow-right"></i></span></div>
-    </button>`;
+    </a>`;
   }).join('');
 }
 
@@ -529,7 +536,7 @@ function pintarDetalle(v) {
   $('ogTitle').content = `${v.puesto} · ${v.sede}`;
   $('ogDesc').content = (v.descripcion || '').slice(0, 160);
   $('canonical').href = urlVacante(v.id);
-  const compartir = urlVacante(v.id) + '&src=comp';
+  const compartir = urlVacante(v.id) + '?src=comp';
   $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(`Mira esta vacante en ${ORG.nombre}: ${v.puesto} (${v.sede}) ${compartir}`);
   $('shCopiar').onclick = () => {
     const lbl = $('shCopiar').querySelector('span');
@@ -583,8 +590,9 @@ function jsonLd(v) {
 
 /* ---------- Navegación ---------- */
 function ruta() {
-  const id = new URLSearchParams(location.search).get('v');
+  const id = idActual();
   const v = id && VACANTES.find(x => x.id === id);
+  if (id && !v) history.replaceState({}, '', BASE);   // vacante cerrada o inexistente → lista
   $('btnTop').hidden = !!v;
   if (v) {
     $('vistaLista').hidden = true; $('vistaDetalle').hidden = false;
@@ -593,18 +601,22 @@ function ruta() {
     actual = null;
     $('vistaDetalle').hidden = true; $('vistaLista').hidden = false;
     document.title = `Bolsa de Trabajo | ${ORG.nombre}`;
-    $('canonical').href = location.origin + location.pathname;
+    $('canonical').href = location.origin + BASE;
     document.querySelectorAll('script[data-jobposting]').forEach(n => n.remove());
     pintarLista();
   }
 }
 function ir(id) {
-  history.pushState({}, '', id ? '?v=' + encodeURIComponent(id) : location.pathname);
+  history.pushState({}, '', id ? BASE + encodeURIComponent(id) + '/' : BASE);
   ruta();
   if (!id) $('vacantes').scrollIntoView();
 }
 window.addEventListener('popstate', ruta);
-$('lista').addEventListener('click', e => { const c = e.target.closest('.job'); if (c) ir(c.dataset.id); });
+$('lista').addEventListener('click', e => {
+  const c = e.target.closest('.job');
+  if (!c || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;   // abrir en pestaña nueva sigue funcionando
+  e.preventDefault(); ir(c.dataset.id);
+});
 $('fSede').addEventListener('click', e => {
   const b = e.target.closest('.chip-filter'); if (!b) return;
   sedeSel = b.dataset.sede;
@@ -613,7 +625,7 @@ $('fSede').addEventListener('click', e => {
 });
 $('btnVolver').onclick = () => ir(null);
 $('btnOtras').onclick = () => ir(null);
-$('homeLink').onclick = e => { e.preventDefault(); history.pushState({}, '', location.pathname); ruta(); window.scrollTo(0, 0); };
+$('homeLink').onclick = e => { e.preventDefault(); history.pushState({}, '', BASE); ruta(); window.scrollTo(0, 0); };
 $('btnTop').onclick = e => { if (!$('vistaLista').hidden) return; e.preventDefault(); ir(null); };
 ['fTexto', 'fArea'].forEach(id => $(id).addEventListener('input', pintarLista));
 $('logoImg').onerror = () => { $('logoImg').hidden = true; $('logoTxt').hidden = false; };

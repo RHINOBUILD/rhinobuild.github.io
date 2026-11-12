@@ -1,0 +1,52 @@
+name: Vacantes · Google for Jobs
+
+# Cada hora lee las vacantes abiertas del ATS y publica una página fija por vacante
+# (/vacantes/ID/) con su ficha JobPosting, más vacantes/sitemap.xml.
+# También se puede correr a mano: Actions → "Vacantes · Google for Jobs" → Run workflow.
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: vacantes
+  cancel-in-progress: false
+
+jobs:
+  generar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generar páginas y sitemap desde el ATS
+        run: node .github/scripts/vacantes.mjs vacantes
+
+      - name: Publicar cambios
+        id: publicar
+        run: |
+          git add -A vacantes
+          if git diff --cached --quiet; then
+            echo "Sin cambios en las vacantes."
+            echo "cambios=no" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Vacantes: actualizar páginas y sitemap desde el ATS"
+          git push
+          echo "cambios=si" >> "$GITHUB_OUTPUT"
+
+      - name: Pedir a GitHub Pages que publique
+        if: steps.publicar.outputs.cambios == 'si'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
