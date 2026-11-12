@@ -425,6 +425,8 @@ function chips(v) {
 }
 
 const TODAS = s => /^todas/i.test(String(s || '').trim());   // "Todas las sedes" aparece dentro de cada sede
+/** Sedes que cubre la vacante (el ATS manda varias para grupos como "911 Bay Watch · Todas las bases"). */
+const cubre = v => (v.sedes && v.sedes.length ? v.sedes : [v.sede]).filter(Boolean);
 /* Cada vacante tiene su página fija /vacantes/ID/ (la genera GitHub Actions para Google for Jobs).
    Los enlaces antiguos ?v=ID siguen funcionando. */
 const BASE = '/vacantes/';
@@ -476,7 +478,7 @@ async function cargar() {
 function llenarFiltros() {
   const uniq = k => [...new Set(VACANTES.map(v => v[k]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
   uniq('area').forEach(a => $('fArea').insertAdjacentHTML('beforeend', `<option>${esc(a)}</option>`));
-  const sedes = uniq('sede').filter(x => !TODAS(x));
+  const sedes = [...new Set(VACANTES.flatMap(cubre))].filter(x => !TODAS(x)).sort((a, b) => a.localeCompare(b, 'es'));
   const q = new URLSearchParams(location.search);
   if (q.get('area')) $('fArea').value = q.get('area');
   if (q.get('sede') && sedes.includes(q.get('sede'))) sedeSel = q.get('sede');
@@ -490,7 +492,7 @@ function pintarLista() {
   const t = norm($('fTexto').value.trim());
   const area = $('fArea').value;
   const res = VACANTES.filter(v =>
-    (!sedeSel || v.sede === sedeSel || TODAS(v.sede)) && (!area || v.area === area) &&
+    (!sedeSel || cubre(v).includes(sedeSel) || TODAS(v.sede)) && (!area || v.area === area) &&
     (!t || norm(v.puesto + ' ' + v.area + ' ' + v.sede).includes(t)));
 
   $('conteo').textContent = res.length === 1 ? '1 vacante' : `${res.length} vacantes`;
