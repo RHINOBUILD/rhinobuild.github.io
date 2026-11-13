@@ -358,7 +358,7 @@ const $ = id => document.getElementById(id);
 const MXN = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
 const ACENTOS = /[\u0300-\u036f]/g;
 let VACANTES = [], ORG = { nombre: CONFIG.ORG_NAME }, MAX_MB = 5;
-let actual = null, sedeSel = '';
+let actual = null, sedeSel = '', tForm = Date.now(), formVac = null;   // tForm: cuándo se mostró el formulario (filtro anti-robots)
 
 /* ---------- Seguimiento de fuente (?src=, ?ref=, utm) ---------- */
 const TRACK = (() => {
@@ -531,8 +531,12 @@ function pintarDetalle(v) {
       ? '<ul>' + v.ubicaciones.map(x => '<li>' + esc([x.localidad, x.estado].filter(Boolean).join(', ')) + '</li>').join('') + '</ul>'
       : `<p>${esc([u.calle, u.localidad || v.sede, u.estado].filter(Boolean).join(', '))}</p>`);
 
-  // Reinicia formulario
-  $('formPost').reset(); $('formMsg').hidden = true; $('formWrap').hidden = false; $('formDone').hidden = true;
+  // Reinicia el formulario solo al cambiar de vacante: en la página fija de una vacante
+  // el candidato puede empezar a escribir antes de que respondan los datos en vivo.
+  if (formVac !== v.id) {
+    formVac = v.id; tForm = Date.now();
+    $('formPost').reset(); $('formMsg').hidden = true; $('formWrap').hidden = false; $('formDone').hidden = true;
+  }
 
   // SEO
   document.title = `${v.puesto} · ${v.sede} | Bolsa de Trabajo ${ORG.nombre}`;
@@ -672,7 +676,7 @@ $('formPost').addEventListener('submit', async e => {
       action: 'postular_web', vacanteId: actual.id, nombre, email: correo, telefono: tel, ciudad,
       cedula: $('cedula').value.trim(), cvBase64: await leerArchivo(f), cvNombre: f.name,
       aviso: true, banco: $('banco').checked, website: $('website').value,
-      src: TRACK.src, ref: TRACK.ref || '', campana: TRACK.campana || ''
+      src: TRACK.src, ref: TRACK.ref || '', campana: TRACK.campana || '', t: Date.now() - tForm
     });
     if (!data.ok) throw new Error(data.error || 'No se pudo enviar.');
     $('doneTitulo').textContent = data.duplicado ? 'Ya tenemos tu postulación' : '¡Postulación recibida!';
@@ -691,6 +695,8 @@ if (CONFIG.CANAL_WHATSAPP) {
   $('heroCanal').hidden = false; $('heroCanal').href = CONFIG.CANAL_WHATSAPP;
 }
 $('anio').textContent = new Date().getFullYear();
+// En la página fija de una vacante el formulario ya está a la vista desde el inicio.
+if (document.documentElement.hasAttribute('data-generado')) formVac = idActual();
 cargar();
 </script>
 </body>
