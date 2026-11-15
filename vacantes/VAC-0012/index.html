@@ -180,7 +180,7 @@
   .info li{margin:.25rem 0}
   .info li::marker{color:var(--gold)}
   .salary{font-family:var(--serif);font-size:1.7rem;font-weight:600;color:var(--ink)}
-  .apply{border-top:4px solid var(--gold)}
+  .apply{border-top:4px solid var(--gold);scroll-margin-top:90px}
   .apply h2{font-family:var(--serif);font-size:1.45rem;font-weight:600}
   .apply form{display:grid;gap:1rem;margin-top:1.2rem}
   .two{display:grid;gap:1rem}
@@ -193,6 +193,13 @@
   .result h2{font-family:var(--serif);font-size:1.6rem;font-weight:600}
   .result p{color:var(--muted);margin-top:.5rem}
   .folio{font-family:ui-monospace,Consolas,monospace;background:var(--gold-soft);color:var(--gold-deep);padding:.15rem .55rem;border-radius:var(--r-sm);font-weight:700}
+
+  /* Botón fijo "Postularme" en celular: el formulario queda debajo de la descripción */
+  .cta-movil{display:none;position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,43,73,.10);padding:.7rem 16px calc(.7rem + env(safe-area-inset-bottom));transition:transform .2s}
+  #vistaDetalle:not([hidden]) ~ .cta-movil{display:block}
+  .cta-movil.oculto{transform:translateY(110%)}
+  @media (min-width:960px){#vistaDetalle:not([hidden]) ~ .cta-movil{display:none}}
+  @media (max-width:959px){body:has(#vistaDetalle:not([hidden])) .footer{padding-bottom:6rem}}
 
   .footer{padding:2rem 0;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
   .footer .wrap{display:flex;flex-wrap:wrap;gap:.6rem 1.5rem;justify-content:space-between}
@@ -336,6 +343,10 @@
     </div>
   </div>
 </main>
+
+<div class="cta-movil" id="ctaMovil">
+  <a class="btn btn-primary btn-block" href="#formPanel" id="ctaPostular"><i class="fa-solid fa-paper-plane"></i> Postularme a esta vacante</a>
+</div>
 
 <footer class="footer">
   <div class="wrap">
@@ -635,6 +646,15 @@ $('btnOtras').onclick = () => ir(null);
 $('homeLink').onclick = e => { e.preventDefault(); history.pushState({}, '', BASE); ruta(); window.scrollTo(0, 0); };
 $('btnTop').onclick = e => { if (!$('vistaLista').hidden) return; e.preventDefault(); ir(null); };
 ['fTexto', 'fArea'].forEach(id => $(id).addEventListener('input', pintarLista));
+$('ctaPostular').onclick = e => {
+  e.preventDefault();
+  $('formPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => { if (!$('formWrap').hidden) $('nombre').focus({ preventScroll: true }); }, 450);
+};
+// El botón fijo se oculta mientras el formulario está a la vista.
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(([en]) => $('ctaMovil').classList.toggle('oculto', en.isIntersecting), { threshold: 0.05 }).observe($('formPanel'));
+}
 $('logoImg').onerror = () => { $('logoImg').hidden = true; $('logoTxt').hidden = false; };
 
 /* ---------- Envío ---------- */
