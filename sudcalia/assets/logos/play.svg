@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="600" height="500">
+  <circle cx="395" cy="105" r="38" fill="#D99B26" />
+  <rect x="200" y="100" width="200" height="200" rx="44" fill="#0F3B57" />
+  <path d="M 320,100 L 356,100 C 380,100 400,120 400,144 L 400,180 Z" fill="#D99B26" />
+  <path d="M 225,130 C 255,105 325,135 375,185 C 392,202 392,225 372,240 C 325,275 265,305 225,285 C 205,275 202,245 215,225 L 245,245 C 280,255 320,235 340,212 C 315,185 270,160 235,165 Z" fill="#D15A28" />
+  <g fill="#FFFFFF" transform="rotate(32 300 165)">
+    <rect x="255" y="132" width="10" height="7" rx="1" />
+    <rect x="273" y="132" width="10" height="7" rx="1" />
+    <rect x="291" y="132" width="10" height="7" rx="1" />
+    <rect x="309" y="132" width="10" height="7" rx="1" />
+    <rect x="327" y="132" width="10" height="7" rx="1" />
+  </g>
+  <g fill="#FFFFFF" transform="rotate(-32 300 245)">
+    <rect x="255" y="262" width="10" height="7" rx="1" />
+    <rect x="273" y="262" width="10" height="7" rx="1" />
+    <rect x="291" y="262" width="10" height="7" rx="1" />
+    <rect x="309" y="262" width="10" height="7" rx="1" />
+    <rect x="327" y="262" width="10" height="7" rx="1" />
+  </g>
+  <polygon points="268,162 268,248 342,205" fill="#FFFFFF" />
+  <text x="300" y="388" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="54px" fill="#D15A28" letter-spacing="2px">SUDCALIA</text>
+  <text x="300" y="432" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="34px" fill="#0F3B57" letter-spacing="5px">PLAY</text>
+</svg>

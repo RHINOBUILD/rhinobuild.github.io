@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="600" height="500">
+  <circle cx="385" cy="125" r="38" fill="#D99B26" />
+  <polygon points="300,90 390,142 390,248 300,300 210,248 210,142" fill="#2B0F2E" stroke="#00D4E5" stroke-width="8" stroke-linejoin="round" />
+  <circle cx="212" cy="195" r="24" fill="#2B0F2E" stroke="#00D4E5" stroke-width="5" />
+  <path d="M 212,185 V 205 M 202,195 H 222" stroke="#8C9BA5" stroke-width="5" stroke-linecap="round" />
+  <circle cx="388" cy="195" r="24" fill="#2B0F2E" stroke="#00D4E5" stroke-width="5" />
+  <circle cx="388" cy="186" r="3.5" fill="#00D4E5" />
+  <circle cx="388" cy="204" r="3.5" fill="#D11975" />
+  <circle cx="379" cy="195" r="3.5" fill="#D99B26" />
+  <circle cx="397" cy="195" r="3.5" fill="#00D4E5" />
+  <polygon points="260,125 345,125 335,155 280,155 275,175 340,185 330,255 245,255 255,225 305,225 310,205 248,195" fill="#D11975" />
+  <polygon points="260,125 280,155 275,175 248,195" fill="#8E0E4F" />
+  <polygon points="340,185 330,255 305,225 310,205" fill="#8E0E4F" />
+  <rect x="165" y="345" width="8" height="8" fill="#2B0F2E" />
+  <rect x="180" y="395" width="7" height="7" fill="#D11975" />
+  <rect x="192" y="405" width="9" height="9" fill="#D11975" />
+  <rect x="415" y="395" width="8" height="8" fill="#00D4E5" />
+  <rect x="428" y="385" width="6" height="6" fill="#00D4E5" />
+  <rect x="438" y="335" width="7" height="7" fill="#2B0F2E" />
+  <text x="300" y="385" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-style="italic" font-size="52px" fill="#2B0F2E" letter-spacing="2px">SUDCALIA</text>
+  <text x="300" y="428" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-style="italic" font-size="38px" fill="#D11975" letter-spacing="3px">GAMES</text>
+</svg>

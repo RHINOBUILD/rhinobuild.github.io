@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="600" height="500">
+  <circle cx="368" cy="115" r="38" fill="#D99B26" />
+  <path d="M 355,105 L 245,105 C 215,105 205,130 205,155 C 205,180 220,198 250,202 L 330,212 L 330,168 L 258,160 L 258,148 L 355,148 Z" fill="#D15A28" />
+  <path d="M 218,175 C 225,195 245,202 275,205 L 335,212 C 365,216 378,235 378,260 L 325,260 C 325,248 315,242 295,240 L 245,234 C 225,230 215,210 218,175 Z" fill="#D99B26" />
+  <path d="M 378,255 C 378,288 355,310 315,310 L 205,310 L 205,265 L 312,265 C 322,265 326,260 326,252 Z" fill="#0F3B57" />
+  <g fill="#FFFFFF">
+    <rect x="265" y="113" width="12" height="8" rx="1" />
+    <rect x="285" y="113" width="12" height="8" rx="1" />
+    <rect x="305" y="113" width="12" height="8" rx="1" />
+    <rect x="325" y="113" width="12" height="8" rx="1" />
+    <rect x="342" y="113" width="10" height="8" rx="1" />
+    <rect x="215" y="294" width="12" height="8" rx="1" />
+    <rect x="235" y="294" width="12" height="8" rx="1" />
+    <rect x="255" y="294" width="12" height="8" rx="1" />
+    <rect x="275" y="294" width="12" height="8" rx="1" />
+    <rect x="295" y="294" width="12" height="8" rx="1" />
+    <rect x="315" y="294" width="12" height="8" rx="1" />
+  </g>
+  <text x="300" y="395" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="54px" fill="#D15A28" letter-spacing="2px">SUDCALIA</text>
+  <text x="300" y="438" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-style="italic" font-size="30px" fill="#0F3B57" letter-spacing="4px">ESTUDIOS</text>
+</svg>
