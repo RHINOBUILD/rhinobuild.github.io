@@ -16,7 +16,7 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | `404.html` | Página de error |
 | `assets/js/config.js` | **El único archivo que tienes que editar**: URL de Apps Script, enlaces de los libros, redes |
 | `assets/css/sudcalia.css` | Estilos con la paleta del Manual de Marca v3.0 |
-| `assets/logos/` | Logotipos oficiales v4 en WebP transparente, más versiones solo con el símbolo |
+| `assets/logos/` | Logotipos oficiales v4 en PNG transparente, más versiones solo con el símbolo |
 | `apps-script/Code.gs` | Backend: guarda los registros en Sheets y te avisa por correo |
 
 ## Puesta en marcha (unos 15 minutos)
