@@ -52,6 +52,6 @@ Llena el formulario en el sitio publicado. El registro debe aparecer en la hoja 
 ## Notas técnicas
 - Los formularios envían con `fetch` en modo `no-cors`, que es lo que permite Apps Script desde otro dominio. El sitio no puede leer la respuesta, así que muestra el mensaje de éxito si el envío no falla en la red.
 - Protección contra spam: un campo oculto que los bots llenan y un límite de 3 registros por correo cada 6 horas.
-- Los SVG llevan los estilos dentro de cada elemento, sin bloque `<style>`, porque algunas plataformas lo eliminan al subir el archivo.
+- Los logotipos SVG (v3.1) tienen los textos convertidos a curvas con Fraunces y DM Sans, así que se ven igual en cualquier equipo y no dependen de fuentes instaladas.
 
 Creado por RHINOBUILD · una empresa Sudcalia.
