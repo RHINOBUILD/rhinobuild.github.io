@@ -213,3 +213,15 @@ form.formulario { background: var(--blanco); color: var(--noche); border-radius:
 .lector .corte { text-align: center; text-indent: 0; color: var(--acento); letter-spacing: .5em; margin: 2em 0; }
 .fin-muestra { margin-top: var(--space-8); padding: var(--space-8); border-radius: var(--radius-lg); background: var(--fondo-2); text-align: center; }
 .fin-muestra p { font-family: var(--font-display); font-size: 1.3rem; }
+
+/* Compra directa */
+.dialogo-compra { border: 0; padding: 0; background: transparent; width: min(480px, 100% - 32px); }
+.dialogo-compra::backdrop { background: rgba(18, 12, 16, .6); backdrop-filter: blur(2px); }
+.dialogo-compra form.formulario { position: relative; }
+.dialogo-compra h2 { font-size: 1.6rem; margin-bottom: 0; }
+.dialogo-compra .cerrar { position: absolute; top: 12px; right: 14px; background: none; border: 0; font-size: 28px; line-height: 1; cursor: pointer; color: var(--noche-suave); }
+.pago-nota { font-size: 13px; margin: 0; }
+.cargando { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--fondo-2); border-top-color: var(--principal); animation: girar 1s linear infinite; margin-top: var(--space-6); }
+@keyframes girar { to { transform: rotate(360deg); } }
+#gracias { max-width: 680px; }
+#gracias h1 { font-size: clamp(2rem, 4.5vw, 3rem); }

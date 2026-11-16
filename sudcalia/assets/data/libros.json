@@ -1,5 +1,5 @@
 {
-  "_instrucciones": "Edita este archivo para actualizar la tienda. Deja \"\" (vacío) lo que aún no tengas: la página lo oculta o muestra 'Próximamente'. Portadas y muestras van en la carpeta assets/libros/.",
+  "_instrucciones": "Edita este archivo para actualizar la tienda. Deja \"\" (vacío) lo que aún no tengas. \"venta_directa\": true muestra el botón Comprar con entrega automática (necesita APPS_SCRIPT_URL en config.js y la tienda instalada en Apps Script).",
   "saga": {
     "nombre": "La Saga de los Robles Eternos",
     "descripcion": "Cuatro libros y una misma lluvia: un caballero, una guerrera y un bosque de robles que nunca pierde sus hojas. Toda la saga está terminada. Empieza gratis con el Libro I.",
@@ -22,7 +22,8 @@
         "google_play": "",
         "amazon": "",
         "mercado_pago": ""
-      }
+      },
+      "venta_directa": false
     },
     {
       "id": "libro-2",
@@ -40,7 +41,8 @@
         "google_play": "",
         "amazon": "",
         "mercado_pago": ""
-      }
+      },
+      "venta_directa": true
     },
     {
       "id": "libro-3",
@@ -58,7 +60,8 @@
         "google_play": "",
         "amazon": "",
         "mercado_pago": ""
-      }
+      },
+      "venta_directa": true
     },
     {
       "id": "libro-4",
@@ -76,7 +79,8 @@
         "google_play": "",
         "amazon": "",
         "mercado_pago": ""
-      }
+      },
+      "venta_directa": true
     }
   ]
 }

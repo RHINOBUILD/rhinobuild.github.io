@@ -46,7 +46,11 @@
       btn(e.descarga_gratis, "Descargar gratis");
       btn(e.google_play, "Leer gratis en Google Play", b.length ? "secundario" : "");
     } else {
-      btn(e.mercado_pago, "Comprar · " + esc(precio(l)));
+      var C = window.SUDCALIA || {};
+      if (l.venta_directa && C.APPS_SCRIPT_URL) {
+        b.push('<button type="button" class="boton" data-comprar="' + esc(l.id) + '">Comprar · ' + esc(precio(l)) + "</button>");
+      }
+      btn(e.mercado_pago, "Comprar · " + esc(precio(l)), b.length ? "secundario" : "");
       btn(e.google_play, "Comprar en Google Play", b.length ? "secundario" : "");
     }
     btn(e.amazon, "Comprar en Amazon", b.length ? "secundario" : "");
@@ -99,6 +103,52 @@
     document.head.appendChild(s);
   }
 
+  // Diálogo de compra: pide correo y manda a pagar a Mercado Pago
+  function activarCompra(l) {
+    var boton = document.querySelector("[data-comprar]");
+    var C = window.SUDCALIA || {};
+    if (!boton || !C.APPS_SCRIPT_URL) return;
+    var dlg = document.createElement("dialog");
+    dlg.className = "dialogo-compra";
+    dlg.innerHTML =
+      '<form class="formulario" method="dialog" novalidate>' +
+        '<button type="button" class="cerrar" aria-label="Cerrar">×</button>' +
+        '<span class="etiqueta">Comprar · Libro ' + esc(l.numero) + "</span>" +
+        "<h2>" + esc(l.titulo) + "</h2>" +
+        '<p class="suave">Te enviaremos el PDF a este correo en cuanto se acredite el pago.</p>' +
+        '<div class="campo"><label for="c-nombre">Nombre</label><input id="c-nombre" name="nombre" autocomplete="name" maxlength="120"></div>' +
+        '<div class="campo"><label for="c-correo">Correo electrónico</label><input id="c-correo" name="correo" type="email" autocomplete="email" required maxlength="160"></div>' +
+        '<div class="campo"><label for="c-correo2">Confirma tu correo</label><input id="c-correo2" name="correo2" type="email" autocomplete="email" required maxlength="160"></div>' +
+        '<label class="check"><input type="checkbox" name="acepto" value="si" required><span>Acepto el <a href="privacidad.html" target="_blank">aviso de privacidad</a>.</span></label>' +
+        '<button class="boton" type="submit">Ir a pagar · ' + esc(precio(l)) + "</button>" +
+        '<p class="form-msg" role="status" aria-live="polite"></p>' +
+        '<p class="suave pago-nota">Serás dirigido a Mercado Pago. Sudcalia no ve ni guarda los datos de tu tarjeta.</p>' +
+      "</form>";
+    document.body.appendChild(dlg);
+    var f = dlg.querySelector("form"), msg = dlg.querySelector(".form-msg"), enviar = dlg.querySelector("[type=submit]");
+    boton.addEventListener("click", function () { dlg.showModal ? dlg.showModal() : dlg.setAttribute("open", ""); });
+    dlg.querySelector(".cerrar").addEventListener("click", function () { dlg.close(); });
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (!f.reportValidity()) return;
+      var correo = f.correo.value.trim().toLowerCase();
+      if (correo !== f.correo2.value.trim().toLowerCase()) {
+        msg.className = "form-msg error"; msg.textContent = "Los correos no coinciden."; return;
+      }
+      enviar.disabled = true; msg.className = "form-msg"; msg.textContent = "Preparando tu pago…";
+      var q = "?accion=pagar&libro=" + encodeURIComponent(l.id) + "&correo=" + encodeURIComponent(correo) +
+        "&nombre=" + encodeURIComponent(f.nombre.value.trim()) + "&acepto=si";
+      fetch(C.APPS_SCRIPT_URL + q).then(function (r) { return r.json(); }).then(function (r) {
+        if (r.ok && /^https:\/\/[a-z0-9.-]*mercadopago\.com/.test(r.url)) { location.href = r.url; return; }
+        var errores = { correo: "Revisa tu correo.", limite: "Demasiados intentos. Espera un rato e inténtalo de nuevo.", libro: "Este libro no está a la venta todavía." };
+        throw new Error(errores[r.error] || "No pudimos iniciar el pago.");
+      }).catch(function (e) {
+        enviar.disabled = false; msg.className = "form-msg error";
+        msg.textContent = (e && e.message && e.message.length < 90 ? e.message : "No pudimos iniciar el pago.") + " Si sigue fallando, escríbenos a " + (C.CORREO_CONTACTO || "contacto@rhinobuild.org") + ".";
+      });
+    });
+  }
+
   fetch(DATOS, { cache: "no-cache" }).then(function (r) { return r.json(); }).then(function (d) {
     var saga = d.saga || {}, lista = d.libros || [];
 
@@ -116,8 +166,10 @@
       if (desc && l.sinopsis) desc.setAttribute("content", l.sinopsis.slice(0, 155));
       var bts = botones(l);
       var muestra = urlSegura(l.muestra) ? '<a class="boton secundario" href="leer.html?libro=' + encodeURIComponent(l.id) + '">Leer una muestra</a>' : "";
+      var directa = bts.join("").indexOf("data-comprar") >= 0;
       var compra = bts.length
-        ? '<div class="botones">' + bts.join("") + muestra + "</div>"
+        ? '<div class="botones">' + bts.join("") + muestra + "</div>" +
+          (directa ? '<p class="suave nota">Pago seguro con Mercado Pago: tarjeta, OXXO o transferencia. Recibes el libro en PDF en tu correo en cuanto se acredita el pago.</p>' : "")
         : '<div class="botones"><a class="boton" href="#registro">Avísame cuando salga</a>' + muestra + '</div><p class="suave nota">Estamos preparando la edición. Déjanos tu correo y te avisamos el día que esté disponible.</p>';
       var sinopsis = l.sinopsis
         ? l.sinopsis.split(/\n\s*\n/).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("")
@@ -155,6 +207,7 @@
       var sel = document.getElementById("f-interes");
       if (sel) sel.value = "ediciones";
       jsonLd(l, saga);
+      activarCompra(l);
     }
 
     // ── Lector de muestra (leer.html?libro=libro-1)

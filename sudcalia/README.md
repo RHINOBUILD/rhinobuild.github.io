@@ -21,7 +21,9 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | `assets/js/config.js` | URL de Apps Script, correo de contacto y redes sociales |
 | `assets/css/sudcalia.css` | Estilos con la paleta del Manual de Marca v3.0 |
 | `assets/logos/` | Logotipos oficiales v4 en PNG transparente, más versiones solo con el símbolo |
-| `apps-script/Code.gs` | Backend: guarda los registros en Sheets y te avisa por correo |
+| `apps-script/Code.gs` | Backend: guarda los registros en Sheets, te avisa por correo y reparte las peticiones a la tienda |
+| `apps-script/Tienda.gs` | Tienda: crea el pago en Mercado Pago, verifica que se haya pagado y envía el PDF por correo |
+| `gracias.html` | Página a la que vuelve el lector después de pagar; confirma el pedido |
 
 ## Puesta en marcha (unos 15 minutos)
 
@@ -47,6 +49,18 @@ Edita `assets/data/libros.json`. Por cada libro puedes llenar:
   - `mercado_pago`: un "link de pago" que creas en tu cuenta de Mercado Pago, para cobrar directo.
 
 Si un libro no tiene ningún enlace, su ficha muestra "Avísame cuando salga" con el formulario de registro.
+
+### 2c. Activa la venta con entrega automática
+1. En el mismo proyecto de Apps Script crea un segundo archivo, **Tienda.gs**, y pega `apps-script/Tienda.gs`. Actualiza también **Code.gs**, porque ahora reparte las peticiones a la tienda.
+2. Sube a **tu Drive** los PDF de los libros II, III y IV (sin compartirlos) y pega sus ID en `LIBROS_VENTA`, dentro de Tienda.gs.
+3. En Mercado Pago: **Tu negocio → Configuración → Credenciales → Producción**. Copia el *Access Token* (`APP_USR-…`).
+4. En Apps Script: **⚙ Configuración del proyecto → Propiedades del script → Agregar**: `MP_ACCESS_TOKEN` = tu token. El token nunca va en el sitio.
+5. Ejecuta `instalarTienda` y autoriza los permisos.
+6. **Implementar → Gestionar implementaciones → editar → Versión nueva.**
+
+Con `APPS_SCRIPT_URL` puesto en `config.js`, los libros con `"venta_directa": true` muestran **Comprar · $99 MXN**. Cada compra aparece en la pestaña **Pedidos** con su estado: Pendiente, Pagado o Entregado. Desde el menú **Sudcalia** de la hoja puedes reenviar un libro.
+
+**Prueba antes de cobrar de verdad:** usa el token de prueba (`TEST-…`) y una tarjeta de prueba de Mercado Pago. Cuando todo funcione, cámbialo por el de producción.
 
 ### 3. Publicación (ya hecha)
 El sitio vive en la carpeta `sudcalia/` del repositorio `RHINOBUILD/rhinobuild.github.io` y se publica en **https://rhinobuild.github.io/sudcalia/**.

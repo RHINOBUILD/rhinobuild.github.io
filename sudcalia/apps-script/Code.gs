@@ -1,6 +1,8 @@
 /**
- * SUDCALIA · Registro de interesados y contacto
+ * SUDCALIA · Registro de interesados (Code.gs) + Tienda de libros (Tienda.gs)
  * Recibe los formularios del sitio (GitHub Pages) y los guarda en Google Sheets.
+ * La venta de libros con Mercado Pago está en Tienda.gs; las instrucciones de la
+ * tienda están al inicio de ese archivo.
  *
  * Instalación:
  *  1. Crea una hoja de cálculo nueva en Google Drive llamada "Sudcalia · Registros".
@@ -44,8 +46,24 @@ function configurar() {
   return 'Hoja lista';
 }
 
-/** Recibe los formularios del sitio. */
+/** Punto de entrada POST: avisos de Mercado Pago o formularios de registro. */
 function doPost(e) {
+  const p = (e && e.parameter) || {};
+  if (p.accion === 'webhook') return tiendaWebhook(e);
+  return registrar(e);
+}
+
+/** Punto de entrada GET: acciones de la tienda o prueba de vida. */
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  if (p.accion === 'pagar') return tiendaPagar(p);
+  if (p.accion === 'confirmar') return tiendaConfirmar(p);
+  if (p.accion === 'webhook') return tiendaWebhook(e);
+  return responder({ ok: true, servicio: 'Sudcalia · Registros y Tienda' });
+}
+
+/** Guarda un registro de interesado. */
+function registrar(e) {
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(10000);
@@ -94,11 +112,6 @@ function doPost(e) {
   } finally {
     try { lock.releaseLock(); } catch (_) {}
   }
-}
-
-/** Para comprobar que la implementación responde (abre la URL /exec en el navegador). */
-function doGet() {
-  return responder({ ok: true, servicio: 'Sudcalia · Registros' });
 }
 
 // ── Utilidades ──────────────────────────────────────────
