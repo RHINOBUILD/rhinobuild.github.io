@@ -12,9 +12,13 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | `estudios.html` | Estudio de animación: adaptación de la saga (12 episodios por temporada, 16+) |
 | `play.html` | Plataforma de streaming, en modo "próximamente" con acceso anticipado |
 | `games.html` | Videojuegos, en modo "próximamente" con registro de beta testers |
+| `libro.html` | Ficha de cada libro: portada, sinopsis, precio, botones de compra y muestra (`libro.html?libro=libro-1`) |
+| `leer.html` | Lector de la muestra gratuita (`leer.html?libro=libro-1`) |
+| `assets/data/libros.json` | **Los datos de la tienda**: sinopsis, frase, portada, muestra, páginas y enlaces de compra de cada libro |
+| `assets/libros/` | Portadas, muestras y el archivo descargable del Libro I (ver su README) |
 | `privacidad.html` | Aviso de privacidad simplificado |
 | `404.html` | Página de error |
-| `assets/js/config.js` | **El único archivo que tienes que editar**: URL de Apps Script, enlaces de los libros, redes |
+| `assets/js/config.js` | URL de Apps Script, correo de contacto y redes sociales |
 | `assets/css/sudcalia.css` | Estilos con la paleta del Manual de Marca v3.0 |
 | `assets/logos/` | Logotipos oficiales v4 en PNG transparente, más versiones solo con el símbolo |
 | `apps-script/Code.gs` | Backend: guarda los registros en Sheets y te avisa por correo |
@@ -31,7 +35,18 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 
 ### 2. Configura el sitio
 Abre `assets/js/config.js` y pega esa URL en `APPS_SCRIPT_URL`.
-Cuando tengas enlaces de venta de los libros, pégalos en `LIBROS`. Mientras un enlace esté vacío, su botón muestra "Próximamente" y lleva al registro.
+### 2b. Llena la tienda de Ediciones
+Edita `assets/data/libros.json`. Por cada libro puedes llenar:
+- `sinopsis`: separa los párrafos con `\n\n`. Y `frase`, una línea gancho que va bajo el título.
+- `portada`: por ejemplo `assets/libros/libro-1-portada.jpg`. Mientras esté vacía, se dibuja una portada con los colores de la marca.
+- `muestra`: un archivo `.md` con el primer capítulo. Si está vacío, no aparece el botón de leer la muestra.
+- `enlaces`:
+  - `descarga_gratis`: el EPUB o PDF del Libro I.
+  - `google_play`
+  - `amazon`
+  - `mercado_pago`: un "link de pago" que creas en tu cuenta de Mercado Pago, para cobrar directo.
+
+Si un libro no tiene ningún enlace, su ficha muestra "Avísame cuando salga" con el formulario de registro.
 
 ### 3. Publicación (ya hecha)
 El sitio vive en la carpeta `sudcalia/` del repositorio `RHINOBUILD/rhinobuild.github.io` y se publica en **https://rhinobuild.github.io/sudcalia/**.

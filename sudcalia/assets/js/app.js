@@ -35,25 +35,6 @@
     });
   }
 
-  // Botones de compra de libros
-  document.querySelectorAll("[data-libro]").forEach(function (el) {
-    var url = C.LIBROS && C.LIBROS[el.getAttribute("data-libro")];
-    if (url) {
-      el.href = url; el.target = "_blank"; el.rel = "noopener";
-      el.textContent = el.getAttribute("data-texto-activo") || "Conseguir";
-    } else {
-      el.removeAttribute("href");
-      el.setAttribute("aria-disabled", "true");
-      el.classList.add("secundario");
-      el.textContent = "Próximamente";
-      el.addEventListener("click", function () {
-        var f = document.getElementById("registro");
-        if (f) f.scrollIntoView({ behavior: "smooth" });
-      });
-      el.style.cursor = "pointer";
-    }
-  });
-
   // Formularios → Apps Script (o correo como respaldo)
   document.querySelectorAll("form.formulario").forEach(function (form) {
     var msg = form.querySelector(".form-msg");

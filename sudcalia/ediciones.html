@@ -10,7 +10,7 @@
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#3D1227">
 <link rel="icon" href="favicon.png" type="image/png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,900;1,800;1,900&family=Fraunces:opsz,wght@9..144,600&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,900;1,800;1,900&family=Fraunces:opsz,wght@9..144,600&family=Literata:ital,wght@0,400;0,600;1,400&display=swap">
 <link rel="stylesheet" href="assets/css/sudcalia.css">
 </head>
 <body class="t-ediciones" data-pagina="ediciones">
@@ -38,8 +38,8 @@
   <div class="contenedor">
     <div class="intro"><span class="etiqueta">La saga completa</span><h2>Cuatro libros, ya escritos.</h2>
       <!-- SINOPSIS: escribe aquí 2 o 3 frases sobre la historia de la saga. -->
-      <p class="suave">Toda la saga está terminada, así que no tendrás que esperar años para el final. Empieza gratis con el Libro I y sigue cuando quieras.</p></div>
-    <div class="libros"><article class="libro"><div class="portada p1"><span class="num">Libro I</span><span class="titulo">Bajo la lluvia de los robles</span><span class="autor">F. C.</span></div><h3>Bajo la lluvia de los robles</h3><p class="precio gratis">Gratis</p><a class="boton" data-libro="libro1" data-texto-activo="Leer gratis" href="#registro">Próximamente</a></article><article class="libro"><div class="portada p2"><span class="num">Libro II</span><span class="titulo">La última hoja</span><span class="autor">F. C.</span></div><h3>La última hoja</h3><p class="precio">$99 MXN</p><a class="boton" data-libro="libro2" data-texto-activo="Comprar" href="#registro">Próximamente</a></article><article class="libro"><div class="portada p3"><span class="num">Libro III</span><span class="titulo">Lo que duerme bajo la raíz</span><span class="autor">F. C.</span></div><h3>Lo que duerme bajo la raíz</h3><p class="precio">$99 MXN</p><a class="boton" data-libro="libro3" data-texto-activo="Comprar" href="#registro">Próximamente</a></article><article class="libro"><div class="portada p4"><span class="num">Libro IV</span><span class="titulo">Donde la lluvia recuerda</span><span class="autor">F. C.</span></div><h3>Donde la lluvia recuerda</h3><p class="precio">$99 MXN</p><a class="boton" data-libro="libro4" data-texto-activo="Comprar" href="#registro">Próximamente</a></article></div>
+      <p class="suave">Toda la saga está terminada, así que no tendrás que esperar años para el final. Empieza gratis con el Libro I y sigue cuando quieras. Toca un libro para ver su sinopsis y dónde conseguirlo.</p></div>
+    <div class="libros" id="catalogo"><article class="libro"><div class="portada p1"><span class="num">Libro I</span><span class="titulo">Bajo la lluvia de los robles</span><span class="autor">F. C.</span></div><h3>Bajo la lluvia de los robles</h3><p class="precio gratis">Gratis</p><a class="boton secundario" href="libro.html?libro=libro-1">Ver el libro</a></article><article class="libro"><div class="portada p2"><span class="num">Libro II</span><span class="titulo">La última hoja</span><span class="autor">F. C.</span></div><h3>La última hoja</h3><p class="precio">$99 MXN</p><a class="boton secundario" href="libro.html?libro=libro-2">Ver el libro</a></article><article class="libro"><div class="portada p3"><span class="num">Libro III</span><span class="titulo">Lo que duerme bajo la raíz</span><span class="autor">F. C.</span></div><h3>Lo que duerme bajo la raíz</h3><p class="precio">$99 MXN</p><a class="boton secundario" href="libro.html?libro=libro-3">Ver el libro</a></article><article class="libro"><div class="portada p4"><span class="num">Libro IV</span><span class="titulo">Donde la lluvia recuerda</span><span class="autor">F. C.</span></div><h3>Donde la lluvia recuerda</h3><p class="precio">$99 MXN</p><a class="boton secundario" href="libro.html?libro=libro-4">Ver el libro</a></article></div>
     <div class="datos"><div class="dato"><strong>4</strong>libros en la saga</div><div class="dato"><strong>$0</strong>el primer libro</div><div class="dato"><strong>16+</strong>lectores jóvenes adultos y adultos</div></div>
   </div>
 </section>
@@ -85,5 +85,6 @@
 </footer>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/libros.js"></script>
 </body>
 </html>

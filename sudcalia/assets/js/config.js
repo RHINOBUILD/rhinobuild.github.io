@@ -9,13 +9,8 @@ window.SUDCALIA = {
   // 2) Correo público de contacto (respaldo y pie de página).
   CORREO_CONTACTO: "contacto@rhinobuild.org",
 
-  // 3) Enlaces de venta de los libros. Déjalos vacíos ("") para mostrar "Próximamente".
-  LIBROS: {
-    libro1: "",   // Bajo la lluvia de los robles (gratis)
-    libro2: "",   // La última hoja
-    libro3: "",   // Lo que duerme bajo la raíz
-    libro4: ""    // Donde la lluvia recuerda
-  },
+  // 3) Los libros (sinopsis, portadas, muestras y enlaces de compra) se editan en
+  //    assets/data/libros.json
 
   // 4) Redes sociales (vacío = no se muestra)
   REDES: {

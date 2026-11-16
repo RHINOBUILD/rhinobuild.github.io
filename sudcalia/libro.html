@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Libro · Sudcalia Ediciones</title>
+<meta name="description" content="Un libro de La Saga de los Robles Eternos, de Sudcalia Ediciones.">
+<meta property="og:title" content="Libro · Sudcalia Ediciones">
+<meta property="og:description" content="Un libro de La Saga de los Robles Eternos, de Sudcalia Ediciones.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#3D1227">
+<link rel="icon" href="favicon.png" type="image/png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,900;1,800;1,900&family=Fraunces:opsz,wght@9..144,600&family=Literata:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="assets/css/sudcalia.css">
+</head>
+<body class="t-ediciones" data-pagina="ediciones">
+<a class="oculto" href="#contenido">Saltar al contenido</a>
+<header class="cabecera">
+  <div class="contenedor">
+    <a class="marca" href="index.html"><img src="assets/logos/ediciones-simbolo.png" alt=""><span>Sudcalia<small>Ediciones</small></span></a>
+    <button class="menu-boton" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu"><li><a href="index.html">Inicio</a></li><li><a href="ediciones.html" aria-current="page">Ediciones</a></li><li><a href="estudios.html">Estudios</a></li><li><a href="play.html">Play</a></li><li><a href="games.html">Games</a></li><li><a href="https://rhinobuild.github.io" target="_blank" rel="noopener">RHINOBUILD</a></li></ul>
+  </div>
+</header>
+<main id="contenido">
+<section><div class="contenedor"><div id="ficha" aria-live="polite"><p class="suave">Cargando el libro…</p></div></div></section>
+<section class="banda"><div class="contenedor"><div class="intro"><span class="etiqueta">La saga completa</span><h2>Los otros libros de la saga</h2></div><div class="libros" id="resto-saga"></div></div></section>
+<section id="registro" class="banda">
+  <div class="contenedor registro">
+    <div>
+      <span class="etiqueta">Registro</span>
+      <h2>Avísame cuando salga.</h2>
+      <p class="suave">Te mandamos el enlace en cuanto el libro esté disponible.</p>
+    </div>
+    <form class="formulario" novalidate>
+      <div class="campo"><label for="f-nombre">Nombre</label><input id="f-nombre" name="nombre" autocomplete="name" required maxlength="120"></div>
+      <div class="campo"><label for="f-correo">Correo electrónico</label><input id="f-correo" name="correo" type="email" autocomplete="email" required maxlength="160"></div>
+      <div class="campo"><label for="f-interes">Me interesa</label><select id="f-interes" name="interes"><option value="general">Todo lo de Sudcalia</option><option value="ediciones" selected>Libros · Ediciones</option><option value="estudios">Series animadas · Estudios</option><option value="play">Plataforma · Play</option><option value="games">Videojuegos · Games</option><option value="rhinobuild">Software para mi empresa · RHINOBUILD</option></select></div>
+      
+      <div class="trampa" aria-hidden="true"><label>Sitio web<input name="web" tabindex="-1" autocomplete="off"></label></div>
+      <label class="check"><input type="checkbox" name="acepto" value="si" required><span>Acepto el <a href="privacidad.html">aviso de privacidad</a> y recibir noticias de Sudcalia. Puedo darme de baja cuando quiera.</span></label>
+      <button class="boton" type="submit">Avísame</button>
+      <p class="form-msg" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+</main>
+<footer class="pie">
+  <div class="contenedor">
+    <div><span class="sol-punto"></span>Sudcalia · Historias y herramientas desde el sur de la península · © <span data-anio></span></div>
+    <nav>
+      <a href="index.html">Sudcalia</a><a href="ediciones.html">Ediciones</a><a href="estudios.html">Estudios</a><a href="play.html">Play</a><a href="games.html">Games</a>
+      <a href="https://rhinobuild.github.io" target="_blank" rel="noopener">RHINOBUILD</a>
+      <a href="privacidad.html">Aviso de privacidad</a>
+      <a data-correo href="#"></a>
+      <span data-redes style="display:contents"></span>
+    </nav>
+  </div>
+</footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/libros.js"></script>
+</body>
+</html>

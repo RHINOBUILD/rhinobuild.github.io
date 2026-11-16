@@ -1,0 +1,67 @@
+{
+  "_instrucciones": "Edita este archivo para actualizar la tienda. Deja \"\" (vacío) lo que aún no tengas: la página lo oculta o muestra 'Próximamente'. Portadas y muestras van en la carpeta assets/libros/.",
+  "saga": {
+    "nombre": "La Saga de los Robles Eternos",
+    "descripcion": "Cuatro libros y una misma lluvia. Toda la saga está terminada: empieza gratis con el Libro I y sigue cuando quieras.",
+    "autor": "F. C."
+  },
+  "libros": [
+    {
+      "id": "libro-1",
+      "numero": "I",
+      "titulo": "Bajo la lluvia de los robles",
+      "precio": 0,
+      "moneda": "MXN",
+      "frase": "",
+      "sinopsis": "",
+      "portada": "",
+      "muestra": "",
+      "paginas": "",
+      "enlaces": {
+        "descarga_gratis": "",
+        "google_play": "",
+        "amazon": "",
+        "mercado_pago": ""
+      }
+    },
+    {
+      "id": "libro-2",
+      "numero": "II",
+      "titulo": "La última hoja",
+      "precio": 99,
+      "moneda": "MXN",
+      "frase": "",
+      "sinopsis": "",
+      "portada": "",
+      "muestra": "",
+      "paginas": "",
+      "enlaces": { "descarga_gratis": "", "google_play": "", "amazon": "", "mercado_pago": "" }
+    },
+    {
+      "id": "libro-3",
+      "numero": "III",
+      "titulo": "Lo que duerme bajo la raíz",
+      "precio": 99,
+      "moneda": "MXN",
+      "frase": "",
+      "sinopsis": "",
+      "portada": "",
+      "muestra": "",
+      "paginas": "",
+      "enlaces": { "descarga_gratis": "", "google_play": "", "amazon": "", "mercado_pago": "" }
+    },
+    {
+      "id": "libro-4",
+      "numero": "IV",
+      "titulo": "Donde la lluvia recuerda",
+      "precio": 99,
+      "moneda": "MXN",
+      "frase": "",
+      "sinopsis": "",
+      "portada": "",
+      "muestra": "",
+      "paginas": "",
+      "enlaces": { "descarga_gratis": "", "google_play": "", "amazon": "", "mercado_pago": "" }
+    }
+  ]
+}
