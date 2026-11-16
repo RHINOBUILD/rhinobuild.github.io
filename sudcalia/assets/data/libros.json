@@ -2,7 +2,7 @@
   "_instrucciones": "Edita este archivo para actualizar la tienda. Deja \"\" (vacío) lo que aún no tengas: la página lo oculta o muestra 'Próximamente'. Portadas y muestras van en la carpeta assets/libros/.",
   "saga": {
     "nombre": "La Saga de los Robles Eternos",
-    "descripcion": "Cuatro libros y una misma lluvia. Toda la saga está terminada: empieza gratis con el Libro I y sigue cuando quieras.",
+    "descripcion": "Cuatro libros y una misma lluvia: un caballero, una guerrera y un bosque de robles que nunca pierde sus hojas. Toda la saga está terminada. Empieza gratis con el Libro I.",
     "autor": "F. C."
   },
   "libros": [
@@ -12,13 +12,13 @@
       "titulo": "Bajo la lluvia de los robles",
       "precio": 0,
       "moneda": "MXN",
-      "frase": "",
-      "sinopsis": "",
-      "portada": "",
-      "muestra": "",
-      "paginas": "",
+      "frase": "Un juramento bajo la lluvia. Un bosque que nunca olvida.",
+      "sinopsis": "El reino de Aldaria se derrumba. En los campos de Darnhelm, Sir Aldric de Varenholt pierde a su padre, la batalla y casi la vida, hasta que una guerrera sin estandarte, de capa escarlata, lo rescata del barro. Se llama Lyanna, tiene una marca como una raíz en la mejilla y una luz en las manos que ella jura que él solo imaginó.\n\nCon lo que queda del ejército, Aldric se refugia en Tharion, un bosque de robles que en mil años no ha soltado una sola hoja. Ahí nadie corta una rama, nadie sale del sendero, y todo escucha. Entre la guerra con el Dominio de Kaldrem, las intrigas del Consejo y una lluvia que parece traer voces, Aldric y Lyanna harán una promesa bajo los robles. Y en Tharion, las promesas tienen precio.",
+      "portada": "assets/libros/libro-1-portada.jpg",
+      "muestra": "assets/libros/libro-1-muestra.md",
+      "paginas": "67",
       "enlaces": {
-        "descarga_gratis": "",
+        "descarga_gratis": "assets/libros/bajo-la-lluvia-de-los-robles.pdf",
         "google_play": "",
         "amazon": "",
         "mercado_pago": ""
@@ -30,12 +30,17 @@
       "titulo": "La última hoja",
       "precio": 99,
       "moneda": "MXN",
-      "frase": "",
-      "sinopsis": "",
-      "portada": "",
-      "muestra": "",
-      "paginas": "",
-      "enlaces": { "descarga_gratis": "", "google_play": "", "amazon": "", "mercado_pago": "" }
+      "frase": "Cuando caiga la última hoja, el pacto cobrará su precio.",
+      "sinopsis": "Han pasado doce años de paz. Aldric y Lyanna viven en Varenholt con su hija Maelis, una niña de once años que nació con la marca del bosque y oye hablar a los árboles. Un día le dice a su madre que el bosque está triste.\n\nPoco después, alrededor de la piedra del círculo, aparecen doce hojas caídas en un bosque que en mil años solo había soltado una. Aldric se debilita, el nuevo Lord Regente vende la mitad de Tharion a la Reina Forjadora de Kaldrem con derecho a tala, y la vieja deuda empieza a cobrarse. Cuando caiga la última hoja, alguien tendrá que pagar.",
+      "portada": "assets/libros/libro-2-portada.jpg",
+      "muestra": "assets/libros/libro-2-muestra.md",
+      "paginas": "47",
+      "enlaces": {
+        "descarga_gratis": "",
+        "google_play": "",
+        "amazon": "",
+        "mercado_pago": ""
+      }
     },
     {
       "id": "libro-3",
@@ -43,12 +48,17 @@
       "titulo": "Lo que duerme bajo la raíz",
       "precio": 99,
       "moneda": "MXN",
-      "frase": "",
-      "sinopsis": "",
-      "portada": "",
-      "muestra": "",
-      "paginas": "",
-      "enlaces": { "descarga_gratis": "", "google_play": "", "amazon": "", "mercado_pago": "" }
+      "frase": "Bajo el bosque, algo antiguo ha empezado a despertar.",
+      "sinopsis": "Antes de los robles hubo raíces, y bajo ellas los Antiguos encerraron al Primer Deudor: un ser que aprendió a tomar sin dar. Durante mil años, cada juramento hecho bajo los robles fue un eslabón de su cadena. Pero en Aldaria se han roto demasiadas promesas.\n\nUna primavera brotan por todo el reino raíces negras que secan el trigo y hablan de noche con la voz de los muertos que amaste, ofreciendo un perdón que mata. Aldric ya no puede alejarse del bosque, Maelis oye la voz que viene de abajo, y Lyanna tendrá que aliarse con sus viejos enemigos de Kaldrem para descender hasta lo que duerme bajo la raíz.",
+      "portada": "assets/libros/libro-3-portada.jpg",
+      "muestra": "assets/libros/libro-3-muestra.md",
+      "paginas": "47",
+      "enlaces": {
+        "descarga_gratis": "",
+        "google_play": "",
+        "amazon": "",
+        "mercado_pago": ""
+      }
     },
     {
       "id": "libro-4",
@@ -56,12 +66,17 @@
       "titulo": "Donde la lluvia recuerda",
       "precio": 99,
       "moneda": "MXN",
-      "frase": "",
-      "sinopsis": "",
-      "portada": "",
-      "muestra": "",
-      "paginas": "",
-      "enlaces": { "descarga_gratis": "", "google_play": "", "amazon": "", "mercado_pago": "" }
+      "frase": "Lo que el bosque se llevó, la lluvia lo devuelve.",
+      "sinopsis": "Siglos después, ya nadie recuerda a Aldaria. Hay trenes, compañías madereras y mapas. Elian Varen, el mejor agrimensor de la capital, llega al pueblo de Robledo contratado para medir el último bosque antiguo del país antes de que lo talen en primavera. Los viejos lo llaman Tharion.\n\nPero ahí la brújula no encuentra el norte, los senderos dan vueltas y el bosque no se deja medir. Su guía, Nerys, tiene en la mejilla la misma marca que Elian lleva en la muñeca desde que nació, y un cuaderno antiguo, escrito por un tal Oren y por una mujer que firma como Maelis de Varenholt, guarda una historia que la lluvia todavía recuerda.",
+      "portada": "assets/libros/libro-4-portada.jpg",
+      "muestra": "assets/libros/libro-4-muestra.md",
+      "paginas": "45",
+      "enlaces": {
+        "descarga_gratis": "",
+        "google_play": "",
+        "amazon": "",
+        "mercado_pago": ""
+      }
     }
   ]
 }
