@@ -16,7 +16,7 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | `404.html` | Página de error |
 | `assets/js/config.js` | **El único archivo que tienes que editar**: URL de Apps Script, enlaces de los libros, redes |
 | `assets/css/sudcalia.css` | Estilos con la paleta del Manual de Marca v3.0 |
-| `assets/logos/` | Logotipos oficiales en SVG, más versiones solo con el símbolo |
+| `assets/logos/` | Logotipos oficiales v4 en WebP transparente, más versiones solo con el símbolo |
 | `apps-script/Code.gs` | Backend: guarda los registros en Sheets y te avisa por correo |
 
 ## Puesta en marcha (unos 15 minutos)
@@ -52,6 +52,6 @@ Llena el formulario en el sitio publicado. El registro debe aparecer en la hoja 
 ## Notas técnicas
 - Los formularios envían con `fetch` en modo `no-cors`, que es lo que permite Apps Script desde otro dominio. El sitio no puede leer la respuesta, así que muestra el mensaje de éxito si el envío no falla en la red.
 - Protección contra spam: un campo oculto que los bots llenan y un límite de 3 registros por correo cada 6 horas.
-- Los logotipos SVG (v3.1) tienen los textos convertidos a curvas con Fraunces y DM Sans, así que se ven igual en cualquier equipo y no dependen de fuentes instaladas.
+- Los logotipos del sitio (`assets/logos/*.webp`) salen de los SVG oficiales v4 con fondo transparente. Los SVG completos, pensados para impresión, están en el Manual de Marca.
 
 Creado por RHINOBUILD · una empresa Sudcalia.
