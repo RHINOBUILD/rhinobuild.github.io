@@ -1,5 +1,5 @@
 {
-  "_instrucciones": "Edita este archivo para actualizar la tienda. Deja \"\" (vacío) lo que aún no tengas. \"venta_directa\": true muestra el botón Comprar con entrega automática (necesita APPS_SCRIPT_URL en config.js y la tienda instalada en Apps Script).",
+  "_instrucciones": "Edita este archivo para actualizar la tienda. Deja \"\" (vacío) lo que aún no tengas. \"venta_directa\": true muestra el botón Comprar con entrega automática (necesita APPS_SCRIPT_URL en config.js y la tienda instalada en Apps Script). Los libros que no son de la saga van en \"otros\" (mismos campos, más \"genero\", \"edicion\", \"tema\" y \"muestra_titulo\").",
   "saga": {
     "nombre": "La Saga de los Robles Eternos",
     "descripcion": "Cuatro libros y una misma lluvia: un caballero, una guerrera y un bosque de robles que nunca pierde sus hojas. Toda la saga está terminada. Empieza gratis con el Libro I.",
@@ -81,6 +81,30 @@
         "mercado_pago": ""
       },
       "venta_directa": true
+    }
+  ],
+  "otros": [
+    {
+      "id": "dentro-de-mi-cabeza",
+      "titulo": "Dentro de mi cabeza",
+      "precio": 0,
+      "moneda": "MXN",
+      "frase": "El verdadero horror no grita… susurra.",
+      "sinopsis": "Un crujido que solo suena a las 3:17. Un cuadro que cambia cada mañana. Un tranvía que no llega a ninguna parte. Una caja que sabe lo que pasará mañana. Un reflejo que olvidó lo que era.\n\nCinco cuentos breves de terror psicológico sobre lo que se esconde del otro lado del espejo… y dentro de la cabeza de quien se asoma: «Dentro de mi cabeza», «El cuadro que me mueve», «La voz en la oscuridad», «La caja de los días» y «El reflejo olvidado».",
+      "genero": "Terror psicológico · Cuentos",
+      "edicion": "Segunda edición, 2026",
+      "tema": "terror",
+      "portada": "assets/libros/dentro-de-mi-cabeza-portada.jpg",
+      "muestra": "assets/libros/dentro-de-mi-cabeza-muestra.md",
+      "muestra_titulo": "Cuento I completo",
+      "paginas": "44",
+      "enlaces": {
+        "descarga_gratis": "assets/libros/dentro-de-mi-cabeza.pdf",
+        "google_play": "",
+        "amazon": "",
+        "mercado_pago": ""
+      },
+      "venta_directa": false
     }
   ]
 }

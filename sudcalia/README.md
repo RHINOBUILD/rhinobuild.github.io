@@ -8,13 +8,13 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | Archivo | Qué es |
 | --- | --- |
 | `index.html` | Página principal: las cinco líneas y el registro |
-| `ediciones.html` | La Saga de los Robles Eternos: 4 libros, el primero gratis |
+| `ediciones.html` | Libros de F. C.: *Dentro de mi cabeza* (5 cuentos de terror, gratis) y La Saga de los Robles Eternos (4 libros, el primero gratis) |
 | `estudios.html` | Estudio de animación: adaptación de la saga (12 episodios por temporada, 16+) |
 | `play.html` | Plataforma de streaming, en modo "próximamente" con acceso anticipado |
 | `games.html` | Videojuegos, en modo "próximamente" con registro de beta testers |
 | `libro.html` | Ficha de cada libro: portada, sinopsis, precio, botones de compra y muestra (`libro.html?libro=libro-1`) |
 | `leer.html` | Lector de la muestra gratuita (`leer.html?libro=libro-1`) |
-| `assets/data/libros.json` | **Los datos de la tienda**: sinopsis, frase, portada, muestra, páginas y enlaces de compra de cada libro |
+| `assets/data/libros.json` | **Los datos de la tienda**: sinopsis, frase, portada, muestra, páginas y enlaces de compra de cada libro. La saga va en `libros`; los títulos independientes, en `otros` |
 | `assets/libros/` | Portadas, muestras y el archivo descargable del Libro I (ver su README) |
 | `privacidad.html` | Aviso de privacidad simplificado |
 | `404.html` | Página de error |
@@ -76,7 +76,7 @@ Llena el formulario en el sitio publicado. El registro debe aparecer en la hoja 
 - [ ] `ediciones.html`: escribir la sinopsis de la saga (busca el comentario `SINOPSIS`).
 - [ ] Portadas reales de los libros: hoy se dibujan con CSS. Puedes reemplazarlas por imágenes en `assets/img/`.
 - [ ] Redes sociales en `config.js` cuando apartes @sudcalia.
-- [ ] Imagen para compartir en redes (`og:image`) cuando tengas un arte de portada.
+- [x] Imagen para compartir en redes (`og:image`) en `ediciones.html`: portada de *Dentro de mi cabeza*.
 
 ## Notas técnicas
 - Los formularios envían con `fetch` en modo `no-cors`, que es lo que permite Apps Script desde otro dominio. El sitio no puede leer la respuesta, así que muestra el mensaje de éxito si el envío no falla en la red.

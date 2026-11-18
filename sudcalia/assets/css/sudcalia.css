@@ -225,3 +225,24 @@ form.formulario { background: var(--blanco); color: var(--noche); border-radius:
 @keyframes girar { to { transform: rotate(360deg); } }
 #gracias { max-width: 680px; }
 #gracias h1 { font-size: clamp(2rem, 4.5vw, 3rem); }
+
+/* ── Dentro de mi cabeza: tema oscuro tomado de su portada ── */
+body.t-terror { --fondo: #0B1214; --fondo-2: #131E21; --principal: #DCE6E6; --sobre-principal: #0B1214; --acento: #8FC3C5; --tinta: #E4ECEC; --tinta-suave: #9FB8B8; --borde: rgba(143,195,197,.18); }
+.t-terror .libro .precio, .t-terror .precio.grande { color: var(--principal); }
+.t-terror .libro .precio.gratis, .t-terror .precio.gratis { color: var(--acento); }
+.t-terror .portada { box-shadow: inset 8px 0 0 rgba(0,0,0,.2), 0 24px 48px -20px rgba(0,0,0,.9); }
+
+/* Ficha destacada en ediciones.html */
+.destacado-terror { background: radial-gradient(120% 90% at 20% 30%, #1B2A2D 0%, #0A1113 70%); color: #DCE6E6; --principal: #DCE6E6; --sobre-principal: #0A1113; --acento: #8FC3C5; --tinta-suave: #9FB8B8; }
+.destacado-terror h2 { color: #EEF3F3; }
+.destacado-terror .suave { color: #9FB8B8; }
+.destacado-terror .ficha-destacada { display: grid; grid-template-columns: minmax(220px, 340px) 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+.destacado-terror .portada-real { display: block; width: 100%; height: auto; border-radius: 4px 10px 10px 4px; box-shadow: inset 8px 0 0 rgba(0,0,0,.2), 0 30px 60px -24px rgba(0,0,0,.9), 0 0 0 1px rgba(143,195,197,.15); transition: transform .2s; }
+.destacado-terror a:hover .portada-real { transform: translateY(-4px); }
+.destacado-terror .cita { font-family: var(--font-display); font-style: italic; font-size: 1.2rem; color: #C9D6D6; }
+.destacado-terror .cuentos { list-style: none; padding: 0; margin: 0 0 var(--space-6); display: flex; flex-wrap: wrap; gap: 8px; }
+.destacado-terror .cuentos li { font-size: 13px; padding: 4px 12px; border: 1px solid rgba(143,195,197,.35); border-radius: 999px; color: #C9D6D6; }
+.destacado-terror .precio { font-weight: 700; color: #8FC3C5; }
+@media (max-width: 820px) { .destacado-terror .ficha-destacada { grid-template-columns: 1fr; } .destacado-terror .portada-real { max-width: 260px; } }
+.t-terror form.formulario .boton { background: #0B1214; border-color: #0B1214; color: #EEF3F3; }
+.t-terror .check input { accent-color: #0B1214; }

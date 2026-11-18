@@ -7,7 +7,8 @@
   var catalogo = document.getElementById("catalogo");
   var ficha = document.getElementById("ficha");
   var lector = document.getElementById("lector");
-  if (!catalogo && !ficha && !lector) return;
+  var catalogoOtros = document.getElementById("catalogo-otros");
+  if (!catalogo && !ficha && !lector && !catalogoOtros) return;
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -85,17 +86,18 @@
     }).join("");
   }
 
-  function jsonLd(l, saga) {
+  function jsonLd(l, saga, suelto) {
     var s = document.createElement("script");
     s.type = "application/ld+json";
     var obj = {
       "@context": "https://schema.org", "@type": "Book",
       name: l.titulo, author: { "@type": "Person", name: saga.autor },
       publisher: { "@type": "Organization", name: "Sudcalia Ediciones" },
-      isPartOf: { "@type": "BookSeries", name: saga.nombre },
-      position: l.numero, inLanguage: "es-MX",
+      inLanguage: "es-MX",
       offers: { "@type": "Offer", price: String(l.precio || 0), priceCurrency: l.moneda || "MXN" }
     };
+    if (!suelto) { obj.isPartOf = { "@type": "BookSeries", name: saga.nombre }; obj.position = l.numero; }
+    if (l.genero) obj.genre = l.genero;
     if (l.sinopsis) obj.description = l.sinopsis;
     if (urlSegura(l.portada)) obj.image = new URL(l.portada, location.href).href;
     if (l.paginas) obj.numberOfPages = Number(l.paginas) || undefined;
@@ -113,7 +115,7 @@
     dlg.innerHTML =
       '<form class="formulario" method="dialog" novalidate>' +
         '<button type="button" class="cerrar" aria-label="Cerrar">×</button>' +
-        '<span class="etiqueta">Comprar · Libro ' + esc(l.numero) + "</span>" +
+        '<span class="etiqueta">Comprar' + (l.numero ? " · Libro " + esc(l.numero) : "") + "</span>" +
         "<h2>" + esc(l.titulo) + "</h2>" +
         '<p class="suave">Te enviaremos el PDF a este correo en cuanto se acredite el pago.</p>' +
         '<div class="campo"><label for="c-nombre">Nombre</label><input id="c-nombre" name="nombre" autocomplete="name" maxlength="120"></div>' +
@@ -150,22 +152,30 @@
   }
 
   fetch(DATOS, { cache: "no-cache" }).then(function (r) { return r.json(); }).then(function (d) {
-    var saga = d.saga || {}, lista = d.libros || [];
+    var saga = d.saga || {}, lista = d.libros || [], otros = d.otros || [];
+    var todos = lista.concat(otros);
+    function esSuelto(l) { return otros.indexOf(l) >= 0; }
+    function aplicarTema(l) { if (l.tema) document.body.classList.add("t-" + String(l.tema).replace(/[^a-z-]/g, "")); }
 
     // ── Catálogo (ediciones.html)
     if (catalogo) {
       catalogo.innerHTML = lista.map(function (l) { return tarjeta(l, idx(l, lista), saga.autor); }).join("");
     }
+    if (catalogoOtros) {
+      catalogoOtros.innerHTML = otros.map(function (l, i) { return tarjeta(l, i + 1, saga.autor); }).join("");
+    }
 
     // ── Ficha (libro.html?libro=libro-1)
     if (ficha) {
-      var l = lista.filter(function (x) { return x.id === param("libro"); })[0] || lista[0];
-      var n = idx(l, lista);
-      document.title = l.titulo + " · " + (saga.nombre || "Sudcalia Ediciones");
+      var l = todos.filter(function (x) { return x.id === param("libro"); })[0] || lista[0];
+      var suelto = esSuelto(l);
+      var n = suelto ? 1 : idx(l, lista);
+      aplicarTema(l);
+      document.title = l.titulo + " · " + (suelto ? "Sudcalia Ediciones" : (saga.nombre || "Sudcalia Ediciones"));
       var desc = document.querySelector('meta[name="description"]');
       if (desc && l.sinopsis) desc.setAttribute("content", l.sinopsis.slice(0, 155));
       var bts = botones(l);
-      var muestra = urlSegura(l.muestra) ? '<a class="boton secundario" href="leer.html?libro=' + encodeURIComponent(l.id) + '">Leer una muestra</a>' : "";
+      var muestra = urlSegura(l.muestra) ? '<a class="boton secundario" href="leer.html?libro=' + encodeURIComponent(l.id) + '">' + (suelto && l.muestra_titulo ? "Leer el primer cuento" : "Leer una muestra") + "</a>" : "";
       var directa = bts.join("").indexOf("data-comprar") >= 0;
       var compra = bts.length
         ? '<div class="botones">' + bts.join("") + muestra + "</div>" +
@@ -176,14 +186,15 @@
         : '<p class="suave">' + (n === 1
             ? "El libro que abre la saga. Empieza aquí, es gratis."
             : "El libro " + esc(l.numero) + " de " + esc(saga.nombre) + ". Continúa justo donde terminó el anterior.") + "</p>";
-      var otros = lista.filter(function (x) { return x !== l; }).map(function (x) { return tarjeta(x, idx(x, lista), saga.autor); }).join("");
-      var anterior = lista[n - 2], siguiente = lista[n];
+      var resto = (suelto ? lista : lista.filter(function (x) { return x !== l; })).map(function (x) { return tarjeta(x, idx(x, lista), saga.autor); }).join("") +
+        otros.filter(function (x) { return x !== l; }).map(function (x, i) { return tarjeta(x, i + 1, saga.autor); }).join("");
+      var anterior = suelto ? null : lista[n - 2], siguiente = suelto ? null : lista[n];
 
       ficha.innerHTML =
         '<div class="ficha">' +
           '<div class="ficha-portada">' + portada(l, n, saga.autor) + "</div>" +
           '<div class="ficha-info">' +
-            '<span class="etiqueta">' + esc(saga.nombre) + " · Libro " + esc(l.numero) + "</span>" +
+            '<span class="etiqueta">' + (suelto ? esc(l.genero || "Sudcalia Ediciones") : esc(saga.nombre) + " · Libro " + esc(l.numero)) + "</span>" +
             "<h1>" + esc(l.titulo) + "</h1>" +
             (l.frase ? '<p class="lead">' + esc(l.frase) + "</p>" : "") +
             '<p class="precio grande' + (l.precio > 0 ? "" : " gratis") + '">' + esc(precio(l)) + "</p>" +
@@ -191,30 +202,42 @@
             '<div class="sinopsis"><h2>Sinopsis</h2>' + sinopsis + "</div>" +
             '<dl class="datos-libro">' +
               "<div><dt>Autor</dt><dd>" + esc(saga.autor) + "</dd></div>" +
-              "<div><dt>Saga</dt><dd>" + esc(saga.nombre) + " (" + n + " de " + lista.length + ")</dd></div>" +
+              (suelto
+                ? (l.genero ? "<div><dt>Género</dt><dd>" + esc(l.genero) + "</dd></div>" : "") +
+                  (l.edicion ? "<div><dt>Edición</dt><dd>" + esc(l.edicion) + "</dd></div>" : "")
+                : "<div><dt>Saga</dt><dd>" + esc(saga.nombre) + " (" + n + " de " + lista.length + ")</dd></div>") +
               (l.paginas ? "<div><dt>Páginas</dt><dd>" + esc(l.paginas) + "</dd></div>" : "") +
               "<div><dt>Idioma</dt><dd>Español</dd></div>" +
               "<div><dt>Edita</dt><dd>Sudcalia Ediciones</dd></div>" +
             "</dl>" +
-            '<nav class="saga-nav">' +
+            (suelto ? "" : '<nav class="saga-nav">' +
               (anterior ? '<a href="libro.html?libro=' + encodeURIComponent(anterior.id) + '">← Libro ' + esc(anterior.numero) + "</a>" : "<span></span>") +
               (siguiente ? '<a href="libro.html?libro=' + encodeURIComponent(siguiente.id) + '">Libro ' + esc(siguiente.numero) + " →</a>" : "") +
-            "</nav>" +
+            "</nav>") +
           "</div>" +
         "</div>";
-      var resto = document.getElementById("resto-saga");
-      if (resto) resto.innerHTML = otros;
+      var cajaResto = document.getElementById("resto-saga");
+      if (cajaResto) cajaResto.innerHTML = resto;
+      var restoEtiqueta = document.getElementById("resto-etiqueta"), restoTitulo = document.getElementById("resto-titulo");
+      if (restoEtiqueta) restoEtiqueta.textContent = suelto ? "Sudcalia Ediciones" : "Más de Sudcalia Ediciones";
+      if (restoTitulo) restoTitulo.textContent = "También de " + (saga.autor || "F. C.");
+      if (suelto && bts.length) {
+        var regT = document.querySelector("#registro h2"), regP = document.querySelector("#registro .suave");
+        if (regT) regT.textContent = "Avísame de los próximos libros.";
+        if (regP) regP.textContent = "Te escribimos cuando " + (saga.autor || "F. C.") + " publique algo nuevo.";
+      }
       var sel = document.getElementById("f-interes");
       if (sel) sel.value = "ediciones";
-      jsonLd(l, saga);
+      jsonLd(l, saga, suelto);
       activarCompra(l);
     }
 
     // ── Lector de muestra (leer.html?libro=libro-1)
     if (lector) {
-      var lb = lista.filter(function (x) { return x.id === param("libro"); })[0] || lista[0];
+      var lb = todos.filter(function (x) { return x.id === param("libro"); })[0] || lista[0];
+      aplicarTema(lb);
       document.title = "Muestra: " + lb.titulo + " · Sudcalia Ediciones";
-      var cab = '<span class="etiqueta">Muestra gratuita · Libro ' + esc(lb.numero) + "</span><h1>" + esc(lb.titulo) + '</h1><p class="suave">' + esc(saga.autor) + "</p>";
+      var cab = '<span class="etiqueta">Muestra gratuita · ' + (esSuelto(lb) ? esc(lb.muestra_titulo || "Primeras páginas") : "Libro " + esc(lb.numero)) + "</span><h1>" + esc(lb.titulo) + '</h1><p class="suave">' + esc(saga.autor) + "</p>";
       var cierre = '<div class="fin-muestra"><p>Aquí termina la muestra.</p><a class="boton" href="libro.html?libro=' + encodeURIComponent(lb.id) + '">Seguir leyendo</a></div>';
       if (!urlSegura(lb.muestra)) {
         lector.innerHTML = cab + '<p>La muestra de este libro estará disponible pronto.</p>' + cierre;
@@ -231,6 +254,6 @@
     }
   }).catch(function () {
     var el = catalogo || ficha || lector;
-    if (el && !catalogo) el.innerHTML = '<p>No pudimos cargar la información del libro. <a href="ediciones.html">Volver a la saga</a>.</p>';
+    if (el && !catalogo && !catalogoOtros) el.innerHTML = '<p>No pudimos cargar la información del libro. <a href="ediciones.html">Volver a la saga</a>.</p>';
   });
 })();
