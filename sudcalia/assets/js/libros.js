@@ -175,7 +175,7 @@
       var desc = document.querySelector('meta[name="description"]');
       if (desc && l.sinopsis) desc.setAttribute("content", l.sinopsis.slice(0, 155));
       var bts = botones(l);
-      var muestra = urlSegura(l.muestra) ? '<a class="boton secundario" href="leer.html?libro=' + encodeURIComponent(l.id) + '">' + (suelto && l.muestra_titulo ? "Leer el primer cuento" : "Leer una muestra") + "</a>" : "";
+      var muestra = urlSegura(l.muestra) ? '<a class="boton secundario" href="leer.html?libro=' + encodeURIComponent(l.id) + '">' + (suelto && l.muestra_boton ? esc(l.muestra_boton) : "Leer una muestra") + "</a>" : "";
       var directa = bts.join("").indexOf("data-comprar") >= 0;
       var compra = bts.length
         ? '<div class="botones">' + bts.join("") + muestra + "</div>" +
@@ -204,6 +204,7 @@
               "<div><dt>Autor</dt><dd>" + esc(saga.autor) + "</dd></div>" +
               (suelto
                 ? (l.genero ? "<div><dt>Género</dt><dd>" + esc(l.genero) + "</dd></div>" : "") +
+                  (l.edad ? "<div><dt>Lectores</dt><dd>" + esc(String(l.edad).replace("+", "")) + " años en adelante</dd></div>" : "") +
                   (l.edicion ? "<div><dt>Edición</dt><dd>" + esc(l.edicion) + "</dd></div>" : "")
                 : "<div><dt>Saga</dt><dd>" + esc(saga.nombre) + " (" + n + " de " + lista.length + ")</dd></div>") +
               (l.paginas ? "<div><dt>Páginas</dt><dd>" + esc(l.paginas) + "</dd></div>" : "") +

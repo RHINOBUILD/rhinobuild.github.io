@@ -8,7 +8,7 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | Archivo | Qué es |
 | --- | --- |
 | `index.html` | Página principal: las cinco líneas y el registro |
-| `ediciones.html` | Libros de F. C.: *Dentro de mi cabeza* (5 cuentos de terror, gratis) y La Saga de los Robles Eternos (4 libros, el primero gratis) |
+| `ediciones.html` | Libros de F. C.: *El último guardián de los recuerdos* (juvenil 10+, gratis), *Dentro de mi cabeza* (terror 16+, gratis) y La Saga de los Robles Eternos (4 libros, el primero gratis) |
 | `estudios.html` | Estudio de animación: adaptación de la saga (12 episodios por temporada, 16+) |
 | `play.html` | Plataforma de streaming, en modo "próximamente" con acceso anticipado |
 | `games.html` | Videojuegos, en modo "próximamente" con registro de beta testers |

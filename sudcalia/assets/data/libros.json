@@ -85,6 +85,30 @@
   ],
   "otros": [
     {
+      "id": "el-ultimo-guardian",
+      "titulo": "El último guardián de los recuerdos",
+      "precio": 0,
+      "moneda": "MXN",
+      "frase": "Aquí habita lo que nunca muere.",
+      "sinopsis": "Leo tiene doce años y un miedo que no le cuenta a nadie: convertirse en alguien a quien todos olvidan. Después de tres mudanzas en dos años, llega con su mamá a Pueblo Hundido, un lugar de niebla y montañas grises que, según la leyenda, se construyó encima de otro pueblo tragado por la tierra hace cien años.\n\nJunto a su nueva casa hay una biblioteca redonda donde no se guardan libros, sino recuerdos en frascos de luz. Su guardián, el viejo Samuel, se está desvaneciendo, y alguien está rompiendo los frascos a propósito. Para salvar la memoria del pueblo, Leo tendrá que encontrar a Clara, una niña a la que nadie puede recordar, y bajar con ella al Páramo del Olvido, donde la Sombra espera.",
+      "genero": "Fantasía juvenil",
+      "edad": "10+",
+      "edicion": "Edición revisada, 2026",
+      "tema": "",
+      "portada": "assets/libros/el-ultimo-guardian-portada.jpg",
+      "muestra": "assets/libros/el-ultimo-guardian-muestra.md",
+      "muestra_titulo": "Capítulo 1 completo",
+      "muestra_boton": "Leer el capítulo 1",
+      "paginas": "54",
+      "enlaces": {
+        "descarga_gratis": "assets/libros/el-ultimo-guardian-de-los-recuerdos.pdf",
+        "google_play": "",
+        "amazon": "",
+        "mercado_pago": ""
+      },
+      "venta_directa": false
+    },
+    {
       "id": "dentro-de-mi-cabeza",
       "titulo": "Dentro de mi cabeza",
       "precio": 0,
@@ -97,6 +121,7 @@
       "portada": "assets/libros/dentro-de-mi-cabeza-portada.jpg",
       "muestra": "assets/libros/dentro-de-mi-cabeza-muestra.md",
       "muestra_titulo": "Cuento I completo",
+      "muestra_boton": "Leer el primer cuento",
       "paginas": "44",
       "enlaces": {
         "descarga_gratis": "assets/libros/dentro-de-mi-cabeza.pdf",
@@ -104,7 +129,8 @@
         "amazon": "",
         "mercado_pago": ""
       },
-      "venta_directa": false
+      "venta_directa": false,
+      "edad": "16+"
     }
   ]
 }
