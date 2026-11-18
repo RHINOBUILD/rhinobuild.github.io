@@ -11,7 +11,8 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | `ediciones.html` | Libros de F. C.: *El último guardián de los recuerdos* (juvenil 10+, gratis), *Dentro de mi cabeza* (terror 16+, gratis) y La Saga de los Robles Eternos (4 libros, el primero gratis) |
 | `estudios.html` | Estudio de animación: adaptación de la saga (12 episodios por temporada, 16+) |
 | `play.html` | Plataforma de streaming, en modo "próximamente" con acceso anticipado |
-| `games.html` | Videojuegos, en modo "próximamente" con registro de beta testers |
+| `games.html` | Videojuegos: *Tortuga del Cortés* (jugable) y registro de beta testers |
+| `games/tortuga-del-cortes/` | Primer juego de Sudcalia Games: HTML5, instalable como app y listo para empaquetar para Google Play (ver su README) |
 | `libro.html` | Ficha de cada libro: portada, sinopsis, precio, botones de compra y muestra (`libro.html?libro=libro-1`) |
 | `leer.html` | Lector de la muestra gratuita (`leer.html?libro=libro-1`) |
 | `assets/data/libros.json` | **Los datos de la tienda**: sinopsis, frase, portada, muestra, páginas y enlaces de compra de cada libro. La saga va en `libros`; los títulos independientes, en `otros` |

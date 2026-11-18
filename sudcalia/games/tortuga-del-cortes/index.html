@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Tortuga del Cortés · Sudcalia Games</title>
+<meta name="description" content="Nada de Loreto a El Arco de Cabo San Lucas, come medusas y esquiva el plástico. El primer juego de Sudcalia Games, hecho en Baja California Sur.">
+<meta property="og:title" content="Tortuga del Cortés · Sudcalia Games">
+<meta property="og:description" content="Nada de Loreto a El Arco de Cabo San Lucas, come medusas y esquiva el plástico.">
+<meta property="og:image" content="https://rhinobuild.github.io/sudcalia/games/tortuga-del-cortes/portada.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#2B0F2E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,500;0,700;1,800;1,900&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:#2B0F2E;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;font-family:'DM Sans',system-ui,sans-serif}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);box-sizing:border-box;background:radial-gradient(circle at 50% 40%,#3B1840,#2B0F2E 70%)}
+  canvas{display:block;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  noscript{color:#F6EAF7;padding:24px;display:block;text-align:center}
+</style>
+</head>
+<body>
+<noscript>Activa JavaScript para jugar Tortuga del Cortés.</noscript>
+<div id="wrap"><canvas id="c" aria-label="Juego Tortuga del Cortés" role="img"></canvas></div>
+<script>
+(() => {
+'use strict';
+const W = 360, H = 640;
+const VERSION = '1.0.0';
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let scale = 1;
+function resize(){
+  const wrap = document.getElementById('wrap');
+  const s = Math.min(wrap.clientWidth / W, wrap.clientHeight / H);
+  scale = s;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  cv.style.width = (W*s)+'px'; cv.style.height = (H*s)+'px';
+  cv.width = Math.round(W*s*dpr); cv.height = Math.round(H*s*dpr);
+  ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+  cv.style.borderRadius = (s*W >= innerWidth - 2) ? '0' : '14px';
+}
+addEventListener('resize', resize); resize();
+
+// ---------- Marca ----------
+const C = { panel:'#2B0F2E', panel2:'#3B1840', mag:'#D11975', cyan:'#00D4E5', tinta:'#F6EAF7', suave:'#C9B3CD', oro:'#FFD34D', verde:'#7DFFB0', rojo:'#FF7A8A' };
+const logo = new Image(); let logoOk = false;
+logo.onload = () => logoOk = true; logo.src = '../../assets/logos/games-simbolo.png';
+const FONT = '"DM Sans", system-ui, sans-serif';
+
+// ---------- Guardado (opcional) ----------
+const store = {
+  get(k, d){ try { const v = localStorage.getItem('sg_tortuga_'+k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem('sg_tortuga_'+k, JSON.stringify(v)); } catch(e){} }
+};
+let best = { historia: store.get('best_historia', 0), infinito: store.get('best_infinito', store.get('best', 0)) };
+let completed = store.get('completado', false);
+let muted = store.get('mute', false);
+
+// ---------- Audio ----------
+let ac = null;
+function audio(){ if(!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(ac && ac.state==='suspended') ac.resume().catch(()=>{}); }
+function beep(f, d=0.1, type='sine', v=0.15, slide=0){
+  if(!ac || muted) return;
+  try {
+    const t0 = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t0);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,f+slide), t0+d);
+    g.gain.setValueAtTime(v, t0); g.gain.exponentialRampToValueAtTime(0.001, t0+d);
+    o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0+d);
+  } catch(e){}
+}
+const seq = (notes, gap, d, type, v) => notes.forEach((f,i) => setTimeout(() => beep(f, d, type, v), i*gap));
+const sfx = {
+  swim: () => beep(260,0.08,'sine',0.05,120),
+  eat:  () => seq([660,880], 60, 0.09, 'triangle', 0.11),
+  shell:() => seq([523,659,784,1046], 70, 0.12, 'triangle', 0.12),
+  life: () => seq([440,554,659,880], 80, 0.14, 'sine', 0.13),
+  hit:  () => beep(180,0.35,'sawtooth',0.15,-120),
+  zone: () => seq([392,523,659,784], 110, 0.15, 'square', 0.06),
+  win:  () => seq([523,659,784,1046,784,1046,1318], 130, 0.2, 'triangle', 0.12),
+  over: () => seq([392,330,262,196], 180, 0.25, 'triangle', 0.13),
+  ui:   () => beep(520,0.06,'triangle',0.08)
+};
+function vibrate(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch(e){} }
+
+// ---------- Mundo ----------
+const SURF = 92, BED = 590, TRAMO = 1000, FIN = 5000;
+const ZONAS = [
+  { nombre:'Loreto', sub:'Bahía de Loreto · Parque Nacional', cielo:['#8FD3F4','#D8F1FF'], mar:['#2CC3C9','#0F86A8','#073F5F'], cerro:'#B9774A', pool:['bag'], ritmo:1.0 },
+  { nombre:'Isla Espíritu Santo', sub:'La Paz · islas de roca roja', cielo:['#FFB36B','#FFE1A6'], mar:['#36D1C4','#0E8FA0','#06455F'], cerro:'#B5523A', pool:['bag','bag','net'], ritmo:1.05 },
+  { nombre:'Cabo Pulmo', sub:'El arrecife vivo del Golfo', cielo:['#7CC6FF','#E9F7FF'], mar:['#27B4D6','#0B6F9C','#052F52'], cerro:'#A9724C', pool:['bag','net','shark'], ritmo:1.1 },
+  { nombre:'San José del Cabo', sub:'Estero y mar abierto', cielo:['#FF9A5A','#FFE3A3'], mar:['#1FB5C9','#0D7AA3','#063B5E'], cerro:'#C0703F', pool:['bag','net','shark','hook'], ritmo:1.15 },
+  { nombre:'Cabo San Lucas', sub:'Rumbo a El Arco', cielo:['#6A3FA0','#FF7A59'], mar:['#1A8FB5','#0A4F7F','#041F3D'], cerro:'#8E4E30', pool:['bag','net','shark','hook','shark','net'], ritmo:1.25 }
+];
+const DATOS = [
+  'Una tortuga puede confundir una bolsa de plástico con una medusa.',
+  'Al Mar de Cortés le llaman "el acuario del mundo".',
+  'Cinco de las siete especies de tortuga marina llegan a BCS.',
+  'Cabo Pulmo es uno de los arrecifes mejor recuperados del planeta.',
+  'Las tortugas regresan a anidar a la playa donde nacieron.',
+  'Una red perdida puede seguir atrapando animales por años.'
+];
+
+// ---------- Estado ----------
+let state = 'splash'; // splash | title | play | pause | over | win
+let mode = 'historia';
+let t = 0, last = 0, stateAt = 0;
+let P, objs, parts, score, dist, lives, speed, inv, holding, banner, shake, nextSpawn, nextItem, archX, zoneIdx, newBest, eaten, hatch;
+let ui = [];
+const bubbles = Array.from({length: 26}, () => ({ x: Math.random()*W, y: SURF + Math.random()*(BED-SURF), r: 1+Math.random()*3, s: .3+Math.random()*.7 }));
+const hills = Array.from({length: 8}, () => 18+Math.random()*26);
+const rocks = Array.from({length: 7}, (_,i) => ({ x: i*65+Math.random()*30, w: 30+Math.random()*40, h: 14+Math.random()*28, k: Math.random() }));
+const weeds = Array.from({length: 14}, (_,i) => ({ x: i*28+Math.random()*20, h: 30+Math.random()*50, p: Math.random()*6 }));
+
+function setState(s){ state = s; stateAt = t; }
+function reset(m){
+  mode = m;
+  P = { x: 92, y: 330, vy: 0, flap: 0 };
+  objs = []; parts = []; score = 0; dist = 0; lives = 3; speed = 2.4; eaten = 0;
+  inv = 0; holding = false; banner = null; shake = 0; nextSpawn = 70; nextItem = 30;
+  archX = null; zoneIdx = 0; newBest = false; hatch = null;
+  showZone(0);
+}
+reset('historia');
+
+function zoneAt(d){ const i = Math.floor(d / TRAMO); return mode === 'historia' ? Math.min(4, i) : i; }
+function zoneData(i){ return ZONAS[((i % 5) + 5) % 5]; }
+function showZone(i){
+  const z = zoneData(i);
+  const head = mode === 'historia' ? `Tramo ${i+1} de 5` : `Tramo ${i+1}`;
+  banner = { txt: z.nombre, pre: head, sub: z.sub, life: 2.6 };
+}
+
+// ---------- Entrada ----------
+function toCanvas(ev){
+  const r = cv.getBoundingClientRect();
+  return { x: (ev.clientX - r.left) * W / r.width, y: (ev.clientY - r.top) * H / r.height };
+}
+function inRect(p, b){ return p.x >= b.x && p.x <= b.x+b.w && p.y >= b.y && p.y <= b.y+b.h; }
+function toggleMute(){ muted = !muted; store.set('mute', muted); }
+function startGame(m){ sfx.ui(); reset(m); setState('play'); holding = false; }
+
+function press(ev){
+  if(ev && ev.cancelable) ev.preventDefault();
+  audio();
+  const p = ev && ev.clientX !== undefined ? toCanvas(ev) : null;
+  if(state === 'splash'){ setState('title'); return; }
+  if(p){
+    for(const b of ui){ if(inRect(p, b)){ b.fn(); return; } }
+  }
+  if(state === 'pause'){ setState('play'); return; }
+  if(state === 'play'){ holding = true; sfx.swim(); }
+}
+function release(ev){ if(ev && ev.cancelable) ev.preventDefault(); holding = false; }
+cv.addEventListener('pointerdown', press);
+addEventListener('pointerup', release);
+addEventListener('pointercancel', release);
+cv.addEventListener('contextmenu', e => e.preventDefault());
+addEventListener('keydown', e => {
+  if(e.repeat) return;
+  const up = e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW';
+  if(up) e.preventDefault();
+  audio();
+  if(state==='splash'){ setState('title'); return; }
+  if(up || e.code==='Enter'){
+    if(state==='title') return startGame('historia');
+    if((state==='over'||state==='win') && t - stateAt > 0.8) return startGame(mode);
+    if(state==='pause') return setState('play');
+    if(state==='play'){ holding = true; sfx.swim(); }
+  }
+  if(e.code==='KeyP'||e.code==='Escape'){ if(state==='play') setState('pause'); else if(state==='pause') setState('play'); }
+  if(e.code==='KeyM') toggleMute();
+});
+addEventListener('keyup', e => { if(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW') holding = false; });
+document.addEventListener('visibilitychange', () => { if(document.hidden && state==='play') setState('pause'); });
+addEventListener('blur', () => { if(state==='play') setState('pause'); });
+
+// ---------- Generación ----------
+const rnd = (a,b) => a + Math.random()*(b-a);
+function spawnHazard(){
+  const z = zoneData(zoneAt(dist));
+  let pool = z.pool;
+  if(mode === 'infinito' && dist > 5*TRAMO) pool = ZONAS[4].pool;
+  const k = pool[Math.floor(Math.random()*pool.length)];
+  if(k==='bag') objs.push({ k, x: W+30, y: rnd(SURF+40, BED-40), by: 0, ph: Math.random()*6, r: 17 });
+  else if(k==='net'){ objs.push({ k, x: W+30, top: Math.random() < .55, len: rnd(140, 240), w: 44 }); }
+  else if(k==='shark') objs.push({ k, x: W+60, y: rnd(SURF+50, BED-50), vx: rnd(1.4,2.4), ph: Math.random()*6, r: 20 });
+  else if(k==='hook') objs.push({ k, x: W+20, y: SURF, len: rnd(140, 330), ph: Math.random()*6, r: 12 });
+}
+function spawnItem(){
+  const r = Math.random();
+  if(r < 0.07 && lives < 5) objs.push({ k:'life', x: W+20, y: rnd(SURF+40, BED-40), ph: 0, r: 15 });
+  else if(r < 0.19) objs.push({ k:'shell', x: W+20, y: rnd(SURF+40, BED-30), ph: 0, r: 14 });
+  else {
+    const n = 1 + Math.floor(Math.random()*4), y0 = rnd(SURF+60, BED-80), amp = rnd(0, 50);
+    for(let i=0;i<n;i++) objs.push({ k:'jelly', x: W+20+i*34, y: y0 + Math.sin(i)*amp, ph: Math.random()*6, r: 13 });
+  }
+}
+function burst(x,y,col,n=12){ for(let i=0;i<n;i++) parts.push({ x, y, vx: rnd(-2.5,2.5), vy: rnd(-2.5,2.5), life: 1, col, r: rnd(2,4) }); }
+function float(x,y,txt,col){ parts.push({ x, y, vx: 0, vy: -0.8, life: 1.2, txt, col }); }
+
+// ---------- Colisiones ----------
+function hitCircle(o){ const dx = o.x - P.x, dy = (o.y + (o.by||0)) - P.y; return dx*dx+dy*dy < (o.r+15)*(o.r+15); }
+function hitNet(o){
+  const y1 = o.top ? SURF : BED - o.len, y2 = o.top ? SURF + o.len : BED;
+  return P.x+17 > o.x - o.w/2 && P.x-17 < o.x + o.w/2 && P.y+11 > y1 && P.y-11 < y2;
+}
+function hitHook(o){ const hx = o.x + Math.sin(o.ph)*6, hy = o.y + o.len; const dx = hx-P.x, dy = hy-P.y; return dx*dx+dy*dy < 24*24; }
+
+function finish(){
+  if(score > best[mode]){ best[mode] = score; newBest = true; store.set('best_'+mode, score); }
+}
+function damage(){
+  if(inv > 0) return;
+  lives--; inv = 1.6; shake = 12; sfx.hit(); vibrate(120); burst(P.x, P.y, C.rojo, 16);
+  if(lives <= 0){ finish(); setState('over'); sfx.over(); vibrate([80,60,160]); }
+}
+function win(){
+  const bonus = lives * 100;
+  score += 500 + bonus;
+  hatch = { bonus, crias: Array.from({length: 7}, (_,i) => ({ x: 40 + i*42 + rnd(-8,8), d: rnd(0, 1.5) })) };
+  completed = true; store.set('completado', true);
+  finish(); setState('win'); sfx.win();
+}
+
+// ---------- Update ----------
+function update(dt){
+  const f = dt * 60;
+  bubbles.forEach(b => { b.y -= b.s*f; b.x -= (state==='play'?speed:1.2)*.2*f; if(b.y < SURF){ b.y = BED; b.x = Math.random()*W; } if(b.x < 0) b.x = W; });
+  if(state === 'splash'){ if(t - stateAt > 2.4) setState('title'); return; }
+  if(state === 'title' || state === 'over' || state === 'win'){ P.flap += dt*6; if(state==='title'){ dist += dt*20; } updateParts(dt, f); return; }
+  if(state !== 'play') return;
+
+  const z = zoneData(zoneAt(dist));
+  speed = Math.min(5.6, 2.4 + dist/1500);
+  dist += speed * f * 0.25;
+
+  // tortuga
+  P.vy += (holding ? -0.42 : 0.24) * f;
+  P.vy = Math.max(-5.2, Math.min(4.2, P.vy)) * Math.pow(0.97, f);
+  P.y += P.vy * f;
+  P.flap += dt * (holding ? 14 : 6);
+  if(P.y < SURF + 14){ P.y = SURF + 14; P.vy = Math.max(0, P.vy); }
+  if(P.y > BED - 14){ P.y = BED - 14; P.vy = Math.min(0, P.vy); }
+  if(holding && Math.random() < 0.3) parts.push({ x: P.x-22, y: P.y+rnd(-6,6), vx: -1.5, vy: -0.5, life: .8, col:'rgba(255,255,255,.7)', r: rnd(1.5,3), bub:true });
+  if(inv > 0) inv -= dt;
+  if(shake > 0) shake -= f;
+
+  // tramos
+  const zi = zoneAt(dist);
+  if(zi !== zoneIdx){ zoneIdx = zi; score += 250; float(W/2, 250, '+250', C.oro); showZone(zi); sfx.zone(); }
+
+  // aparición de objetos
+  const finalStretch = mode === 'historia' && dist > FIN - 180;
+  nextSpawn -= f; nextItem -= f;
+  if(nextSpawn <= 0 && !finalStretch){ spawnHazard(); nextSpawn = rnd(70, 115) / (speed/2.4) / z.ritmo; }
+  if(nextItem <= 0){ spawnItem(); nextItem = rnd(55, 95); }
+
+  // El Arco
+  if(mode === 'historia' && archX === null && dist > FIN - 300) archX = W + 40;
+  if(mode === 'infinito' && archX === null && zi % 5 === 4 && (dist % TRAMO) > 700) archX = W + 40;
+  if(archX !== null){ archX -= speed*0.45*f; if(archX < -220) archX = null; }
+
+  // objetos
+  for(let i=objs.length-1;i>=0;i--){
+    const o = objs[i];
+    o.x -= (speed + (o.vx||0)) * f;
+    if(o.ph !== undefined) o.ph += dt*3;
+    if(o.k==='bag') o.by = Math.sin(o.ph)*16;
+    if(o.k==='jelly') o.y += Math.sin(o.ph)*0.4*f;
+    const hit = o.k==='net' ? hitNet(o) : o.k==='hook' ? hitHook(o) : hitCircle(o);
+    if(hit){
+      if(o.k==='jelly'){ score += 10; eaten++; sfx.eat(); burst(o.x,o.y,'#F7A8FF',8); float(o.x,o.y-10,'+10','#FFD1FF'); objs.splice(i,1); continue; }
+      if(o.k==='shell'){ score += 50; sfx.shell(); burst(o.x,o.y,C.oro,14); float(o.x,o.y-10,'+50',C.oro); objs.splice(i,1); continue; }
+      if(o.k==='life'){ lives = Math.min(5, lives+1); sfx.life(); burst(o.x,o.y,C.verde,14); float(o.x,o.y-10,'+1 vida',C.verde); objs.splice(i,1); continue; }
+      damage(); if(state !== 'play') return;
+    }
+    if(o.x < -120) objs.splice(i,1);
+  }
+  updateParts(dt, f);
+  if(banner){ banner.life -= dt; if(banner.life<=0) banner = null; }
+  if(mode === 'historia' && dist >= FIN) win();
+}
+function updateParts(dt, f){
+  for(let i=parts.length-1;i>=0;i--){ const p = parts[i]; p.x += p.vx*f; p.y += p.vy*f; p.life -= dt*(p.txt?1:1.8); if(p.life<=0) parts.splice(i,1); }
+}
+
+// ---------- Utilidades de dibujo ----------
+function hex(c){ const n = parseInt(c.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function mix(a,b,k){ const A = hex(a), B = hex(b); return 'rgb(' + A.map((v,i) => Math.round(v+(B[i]-v)*k)).join(',') + ')'; }
+function palette(){
+  // mezcla suave en los últimos 120 m de cada tramo
+  const i = zoneAt(dist), z = zoneData(i), n = zoneData(i+1);
+  let k = 0;
+  const into = dist - i*TRAMO;
+  if(!(mode==='historia' && i>=4) && into > TRAMO-120) k = (into-(TRAMO-120))/120;
+  const m = (a,b) => k ? mix(a,b,k) : a;
+  return { cielo: [m(z.cielo[0],n.cielo[0]), m(z.cielo[1],n.cielo[1])], mar: [0,1,2].map(j => m(z.mar[j],n.mar[j])), cerro: m(z.cerro,n.cerro), dusk: i%5===4 };
+}
+function rr(x,y,w,h,r){ ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x,y,w,h,r); else ctx.rect(x,y,w,h); }
+function txt(s,x,y,size,col,align='center',weight='800',italic=false){ ctx.font = `${italic?'italic ':''}${weight} ${size}px ${FONT}`; ctx.textAlign = align; ctx.fillStyle = col; ctx.fillText(s,x,y); }
+function txtOutline(s,x,y,size,col,stroke=C.panel){ ctx.font = `italic 900 ${size}px ${FONT}`; ctx.textAlign='center'; ctx.lineJoin='round'; ctx.lineWidth = size/5; ctx.strokeStyle = stroke; ctx.strokeText(s,x,y); ctx.fillStyle = col; ctx.fillText(s,x,y); }
+function wrapText(s, x, y, maxW, lh, size, col, weight='500'){
+  ctx.font = `${weight} ${size}px ${FONT}`;
+  const words = s.split(' '); let line = '', yy = y;
+  for(const w of words){ const test = line ? line+' '+w : w; if(ctx.measureText(test).width > maxW && line){ txt(line, x, yy, size, col, 'center', weight); line = w; yy += lh; } else line = test; }
+  if(line) txt(line, x, yy, size, col, 'center', weight);
+}
+function heart(x,y,s,col){ ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, y+s*.35); ctx.bezierCurveTo(x-s, y-s*.3, x-s*.4, y-s, x, y-s*.4); ctx.bezierCurveTo(x+s*.4, y-s, x+s, y-s*.3, x, y+s*.35); ctx.fill(); }
+
+// ---------- Escenario ----------
+function drawBG(){
+  const pal = palette();
+  let g = ctx.createLinearGradient(0,0,0,SURF);
+  g.addColorStop(0, pal.cielo[0]); g.addColorStop(1, pal.cielo[1]);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,SURF);
+  ctx.fillStyle = pal.dusk ? 'rgba(255,200,140,.95)' : 'rgba(255,248,215,.95)';
+  ctx.beginPath(); ctx.arc(280, pal.dusk ? SURF-4 : SURF-46, pal.dusk ? 28 : 18, 0, Math.PI*2); ctx.fill();
+  // cerros
+  const off = (dist*0.6) % 70;
+  ctx.fillStyle = pal.cerro;
+  ctx.beginPath(); ctx.moveTo(0,SURF);
+  for(let i=0;i<hills.length+1;i++){ const h = hills[i%hills.length]; const x = i*70 - off; ctx.quadraticCurveTo(x+35, SURF-h*1.6, x+70, SURF); }
+  ctx.lineTo(W,SURF); ctx.fill();
+  // cardones
+  ctx.fillStyle = '#4E6B4F';
+  for(let i=0;i<4;i++){
+    const x = ((i*110 - dist*0.9) % 440 + 440) % 440 - 40;
+    ctx.fillRect(x, SURF-34, 6, 34); ctx.fillRect(x-8, SURF-22, 5, 14); ctx.fillRect(x-8, SURF-22, 10, 4); ctx.fillRect(x+9, SURF-28, 5, 16); ctx.fillRect(x+4, SURF-16, 10, 4);
+  }
+  if(archX !== null) drawArch(archX);
+  // mar
+  g = ctx.createLinearGradient(0,SURF,0,H);
+  g.addColorStop(0,pal.mar[0]); g.addColorStop(.45,pal.mar[1]); g.addColorStop(1,pal.mar[2]);
+  ctx.fillStyle = g; ctx.fillRect(0,SURF,W,H-SURF);
+  ctx.save(); ctx.globalAlpha = .08; ctx.fillStyle = '#fff';
+  for(let i=0;i<5;i++){ const x = ((i*90 - dist*0.3) % 450 + 450) % 450 - 60; ctx.beginPath(); ctx.moveTo(x,SURF); ctx.lineTo(x+30,SURF); ctx.lineTo(x+110,BED); ctx.lineTo(x+50,BED); ctx.fill(); }
+  ctx.restore();
+  ctx.fillStyle = 'rgba(255,255,255,.55)';
+  ctx.beginPath(); ctx.moveTo(0,SURF);
+  for(let x=0;x<=W;x+=8) ctx.lineTo(x, SURF + Math.sin(x*0.06 + t*3)*2.5);
+  ctx.lineTo(W,SURF+5); ctx.lineTo(0,SURF+5); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1;
+  bubbles.forEach(b => { ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.stroke(); });
+  // fondo
+  ctx.fillStyle = '#E0C48C'; ctx.beginPath(); ctx.moveTo(0,BED);
+  for(let x=0;x<=W;x+=20) ctx.lineTo(x, BED + Math.sin((x+dist)*0.03)*5);
+  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.fill();
+  const coral = zoneAt(dist) % 5 === 2;
+  weeds.forEach(w => {
+    const x = ((w.x - dist) % 400 + 400) % 400 - 20;
+    ctx.strokeStyle = coral ? '#FF8A6E' : '#2F8F5B'; ctx.lineWidth = coral ? 5 : 4; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x, BED+4);
+    ctx.quadraticCurveTo(x + Math.sin(t*1.5+w.p)*10, BED - w.h/2, x + Math.sin(t*1.5+w.p+1)*14, BED - w.h); ctx.stroke();
+  });
+  rocks.forEach(r => {
+    const x = ((r.x - dist) % 460 + 460) % 460 - 50;
+    ctx.fillStyle = r.k > .5 ? '#8A6E55' : '#6F5A48';
+    ctx.beginPath(); ctx.ellipse(x, BED+6, r.w/2, r.h, 0, Math.PI, 0); ctx.fill();
+    if(r.k > .7 || coral){ ctx.fillStyle = coral ? '#FFB347' : '#FF7F6E'; ctx.beginPath(); ctx.arc(x-6, BED+6-r.h, 5, 0, Math.PI*2); ctx.arc(x+4, BED+4-r.h, 4, 0, Math.PI*2); ctx.fill(); }
+  });
+}
+function drawArch(x){
+  const base = SURF + 6;
+  ctx.fillStyle = '#9A5A36';
+  ctx.beginPath();
+  ctx.moveTo(x, base); ctx.lineTo(x+6, base-48); ctx.lineTo(x+22, base-70); ctx.lineTo(x+46, base-76); ctx.lineTo(x+70, base-60);
+  ctx.lineTo(x+86, base-30); ctx.lineTo(x+96, base); ctx.lineTo(x+70, base);
+  ctx.quadraticCurveTo(x+66, base-36, x+48, base-40); ctx.quadraticCurveTo(x+30, base-36, x+26, base);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#7D4528'; ctx.beginPath(); ctx.moveTo(x+96,base); ctx.lineTo(x+110,base-46); ctx.lineTo(x+130,base-58); ctx.lineTo(x+150,base); ctx.fill();
+}
+
+// ---------- Personajes y objetos ----------
+function drawTurtle(x,y,vy,flap,alpha=1,sc=1){
+  ctx.save(); ctx.globalAlpha = alpha; ctx.translate(x,y); ctx.scale(sc,sc); ctx.rotate(Math.max(-.45, Math.min(.45, vy*0.08)));
+  const fl = Math.sin(flap)*0.6;
+  ctx.fillStyle = '#5FBF6E';
+  ctx.save(); ctx.translate(6,-10); ctx.rotate(-0.9+fl); ctx.beginPath(); ctx.ellipse(0,-10,6,15,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.translate(6,10); ctx.rotate(0.9-fl); ctx.beginPath(); ctx.ellipse(0,10,6,15,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.translate(-16,-7); ctx.rotate(-0.4-fl*.5); ctx.beginPath(); ctx.ellipse(-4,0,7,4,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.save(); ctx.translate(-16,7); ctx.rotate(0.4+fl*.5); ctx.beginPath(); ctx.ellipse(-4,0,7,4,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.beginPath(); ctx.ellipse(24,0,9,7,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#10222B'; ctx.beginPath(); ctx.arc(27,-2.5,2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(27.6,-3.1,.7,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#2E7D4F'; ctx.beginPath(); ctx.ellipse(0,0,20,15,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#A5D66B'; ctx.lineWidth = 1.6; ctx.stroke();
+  ctx.fillStyle = '#3F9A5F'; ctx.lineWidth = 1; ctx.strokeStyle = '#1F5C39';
+  const hx = (cx,cy,s) => { ctx.beginPath(); for(let i=0;i<6;i++){ const a = Math.PI/3*i; ctx.lineTo(cx+Math.cos(a)*s, cy+Math.sin(a)*s*.8); } ctx.closePath(); ctx.fill(); ctx.stroke(); };
+  hx(0,0,6.5); hx(-11,-5,4.5); hx(-11,5,4.5); hx(11,-5,4.5); hx(11,5,4.5);
+  ctx.restore();
+}
+function drawObj(o){
+  if(o.k==='jelly'){
+    const y = o.y, p = Math.sin(o.ph*2)*2;
+    ctx.fillStyle = 'rgba(247,168,255,.9)'; ctx.beginPath(); ctx.ellipse(o.x, y, 12, 9+p*.4, 0, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle = 'rgba(247,168,255,.75)'; ctx.lineWidth = 2;
+    for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.moveTo(o.x+i*4, y); ctx.quadraticCurveTo(o.x+i*4+Math.sin(o.ph+i)*4, y+8, o.x+i*4, y+16+p); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.arc(o.x-4, y-4, 2.2, 0, Math.PI*2); ctx.fill();
+  } else if(o.k==='shell'){
+    ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(Math.sin(o.ph)*.2);
+    ctx.shadowColor = C.oro; ctx.shadowBlur = 14;
+    ctx.fillStyle = '#FFCF3F'; ctx.beginPath(); ctx.moveTo(0,10); ctx.arc(0,0,13,Math.PI*1.1,Math.PI*1.9); ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0; ctx.strokeStyle = '#C98F10'; ctx.lineWidth = 1.5;
+    for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.moveTo(0,10); ctx.lineTo(Math.sin(i*.45)*13, -Math.cos(i*.45)*13+1); ctx.stroke(); }
+    ctx.restore();
+  } else if(o.k==='life'){
+    const s = 1 + Math.sin(o.ph*2)*.08;
+    ctx.save(); ctx.translate(o.x,o.y); ctx.scale(s,s);
+    ctx.fillStyle = 'rgba(125,255,176,.25)'; ctx.beginPath(); ctx.arc(0,0,16,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FF5D7A'; ctx.beginPath(); ctx.moveTo(0,6); ctx.bezierCurveTo(-12,-2,-6,-12,0,-5); ctx.bezierCurveTo(6,-12,12,-2,0,6); ctx.fill();
+    ctx.restore();
+  } else if(o.k==='bag'){
+    const y = o.y + (o.by||0);
+    ctx.save(); ctx.translate(o.x,y); ctx.rotate(Math.sin(o.ph)*.25);
+    ctx.fillStyle = 'rgba(235,240,245,.82)'; ctx.strokeStyle = 'rgba(160,170,180,.9)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-14,-10); ctx.lineTo(-10,-20); ctx.lineTo(-5,-10); ctx.lineTo(5,-10); ctx.lineTo(10,-20); ctx.lineTo(14,-10);
+    ctx.quadraticCurveTo(20, 8, 10, 18); ctx.quadraticCurveTo(0, 22+Math.sin(o.ph*2)*3, -10, 18); ctx.quadraticCurveTo(-20, 8, -14, -10); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = 'rgba(200,40,40,.75)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-4,0); ctx.lineTo(4,8); ctx.moveTo(4,0); ctx.lineTo(-4,8); ctx.stroke();
+    ctx.restore();
+  } else if(o.k==='net'){
+    const y1 = o.top ? SURF : BED - o.len, y2 = o.top ? SURF + o.len : BED, x1 = o.x - o.w/2;
+    ctx.fillStyle = 'rgba(30,40,40,.25)'; ctx.fillRect(x1, y1, o.w, y2-y1);
+    ctx.strokeStyle = 'rgba(240,230,200,.75)'; ctx.lineWidth = 1.3;
+    ctx.save(); ctx.beginPath(); ctx.rect(x1,y1,o.w,y2-y1); ctx.clip();
+    for(let k=-o.len; k<o.len+o.w; k+=12){ ctx.beginPath(); ctx.moveTo(x1+k, y1); ctx.lineTo(x1+k+(y2-y1), y2); ctx.moveTo(x1+k, y2); ctx.lineTo(x1+k+(y2-y1), y1); ctx.stroke(); }
+    ctx.restore();
+    ctx.strokeStyle = '#D9C38C'; ctx.lineWidth = 3; ctx.strokeRect(x1, y1, o.w, y2-y1);
+    ctx.fillStyle = '#FF5A3C'; const by = o.top ? y2 : y1;
+    for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc(x1 + 6 + i*(o.w-12)/2, by, 5, 0, Math.PI*2); ctx.fill(); }
+  } else if(o.k==='shark'){
+    const y = o.y + Math.sin(o.ph)*6;
+    ctx.save(); ctx.translate(o.x, y);
+    ctx.fillStyle = '#6C8EA3';
+    ctx.beginPath(); ctx.moveTo(-34,0); ctx.quadraticCurveTo(-10,-18,22,-6); ctx.quadraticCurveTo(34,0,22,8); ctx.quadraticCurveTo(-10,14,-34,0); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-2,-11); ctx.lineTo(8,-26); ctx.lineTo(12,-8); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(22,-2); ctx.lineTo(42+Math.sin(o.ph*4)*3,-16); ctx.lineTo(36,0); ctx.lineTo(42+Math.sin(o.ph*4)*3,14); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#DFE9EE'; ctx.beginPath(); ctx.moveTo(-30,2); ctx.quadraticCurveTo(-8,12,20,6); ctx.quadraticCurveTo(-8,6,-30,2); ctx.fill();
+    ctx.fillStyle = '#10222B'; ctx.beginPath(); ctx.arc(-20,-3,2.2,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#10222B'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-30,3); ctx.lineTo(-20,5); ctx.stroke();
+    ctx.restore();
+  } else if(o.k==='hook'){
+    const hx = o.x + Math.sin(o.ph)*6, hy = o.y + o.len;
+    ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(o.x, 0); ctx.lineTo(hx, hy-10); ctx.stroke();
+    ctx.strokeStyle = '#C9CED4'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(hx, hy-12); ctx.lineTo(hx, hy+4); ctx.arc(hx-7, hy+4, 7, 0, Math.PI*.9); ctx.stroke();
+    ctx.fillStyle = '#FF5A3C'; ctx.beginPath(); ctx.arc(hx, hy-16, 5, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+// ---------- Interfaz ----------
+function panel(x,y,w,h){ ctx.fillStyle = 'rgba(43,15,46,.88)'; rr(x,y,w,h,20); ctx.fill(); ctx.strokeStyle = 'rgba(0,212,229,.55)'; ctx.lineWidth = 2; ctx.stroke(); }
+function button(label, y, fn, primary=true, w=220){
+  const b = { x: W/2 - w/2, y: y - 24, w, h: 48, fn: () => { sfx.ui(); fn(); } };
+  ui.push(b);
+  const s = primary ? 1 + Math.sin(t*5)*0.025 : 1;
+  ctx.save(); ctx.translate(W/2, y); ctx.scale(s,s);
+  if(primary){
+    ctx.fillStyle = '#8E0F4F'; rr(-w/2,-20,w,48,24); ctx.fill();
+    ctx.fillStyle = C.mag; rr(-w/2,-24,w,46,23); ctx.fill();
+    txt(label, 0, 7, 20, '#fff', 'center', '900', true);
+  } else {
+    ctx.strokeStyle = C.cyan; ctx.lineWidth = 2; rr(-w/2,-22,w,44,22); ctx.stroke();
+    txt(label, 0, 6, 17, C.cyan, 'center', '900', true);
+  }
+  ctx.restore();
+}
+function iconBtn(x, kind){
+  ui.push({ x, y: 8, w: 36, h: 36, fn: kind==='mute' ? toggleMute : () => setState(state==='play'?'pause':'play') });
+  ctx.fillStyle = 'rgba(43,15,46,.65)'; rr(x,8,34,34,10); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+  if(kind==='mute'){
+    ctx.beginPath(); ctx.moveTo(x+9,20); ctx.lineTo(x+14,20); ctx.lineTo(x+20,15); ctx.lineTo(x+20,35); ctx.lineTo(x+14,30); ctx.lineTo(x+9,30); ctx.fill();
+    if(muted){ ctx.beginPath(); ctx.moveTo(x+23,19); ctx.lineTo(x+30,31); ctx.moveTo(x+30,19); ctx.lineTo(x+23,31); ctx.stroke(); }
+    else { ctx.beginPath(); ctx.arc(x+21,25,6,-0.9,0.9); ctx.stroke(); }
+  } else {
+    if(state==='pause'){ ctx.beginPath(); ctx.moveTo(x+12,17); ctx.lineTo(x+24,25); ctx.lineTo(x+12,33); ctx.fill(); }
+    else { ctx.fillRect(x+11,17,5,16); ctx.fillRect(x+19,17,5,16); }
+  }
+}
+function drawHUD(){
+  ctx.fillStyle = 'rgba(43,15,46,.6)'; rr(8,8,W-96,34,10); ctx.fill();
+  for(let i=0;i<5;i++) heart(23+i*19, 26, 8.5, i<lives ? '#FF5D7A' : 'rgba(255,255,255,.18)');
+  txt(score+'', 150, 32, 19, C.oro, 'left', '900', true);
+  txt(Math.floor(dist)+' m', W-96, 31, 13, C.tinta, 'right', '700');
+  iconBtn(W-84, 'pause'); iconBtn(W-44, 'mute');
+  if(mode === 'historia'){
+    const k = Math.min(1, dist / FIN);
+    ctx.fillStyle = 'rgba(43,15,46,.6)'; rr(8, 48, W-16, 10, 5); ctx.fill();
+    for(let i=1;i<5;i++){ ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(8 + (W-16)*i/5, 49, 1.5, 8); }
+    ctx.fillStyle = C.cyan; rr(8, 48, Math.max(10,(W-16)*k), 10, 5); ctx.fill();
+    ctx.fillStyle = '#5FBF6E'; ctx.beginPath(); ctx.arc(8 + (W-16)*k, 53, 6, 0, Math.PI*2); ctx.fill();
+  }
+}
+function drawLogo(cx, y, size){
+  // símbolo oficial + nombre en tinta clara (legible sobre fondos oscuros)
+  if(logoOk) ctx.drawImage(logo, cx - size/2, y, size, size);
+  const ty = y + size + size*0.2;
+  txt('SUDCALIA', cx, ty, size*0.24, C.tinta, 'center', '900', true);
+  ctx.font = `italic 900 ${size*0.2}px ${FONT}`; ctx.textAlign = 'left';
+  const w1 = ctx.measureText('GAM').width, w2 = ctx.measureText('ES').width, x0 = cx - (w1+w2)/2;
+  ctx.fillStyle = C.mag; ctx.fillText('GAM', x0, ty + size*0.22);
+  ctx.fillStyle = C.cyan; ctx.fillText('ES', x0 + w1, ty + size*0.22);
+}
+function drawLegend(y){
+  const items = [ ['jelly','+10','#FFD1FF'], ['shell','+50',C.oro], ['life','vida',C.verde], ['bag','¡evita!',C.rojo] ];
+  items.forEach((it,i) => {
+    const x = 66 + i*76;
+    if(it[0]==='bag'){ ctx.save(); ctx.translate(x,y); ctx.scale(.8,.8); drawObj({k:'bag', x:0, y:0, by:0, ph:t}); ctx.restore(); }
+    else drawObj({k:it[0], x, y: it[0]==='shell'?y+2:y, ph:t});
+    txt(it[1], x, y+30, 12, it[2], 'center', '700');
+  });
+}
+
+function drawSplash(){
+  ctx.fillStyle = C.panel; ctx.fillRect(0,0,W,H);
+  const k = Math.min(1, (t - stateAt) / 0.8), out = Math.max(0, (t - stateAt - 1.9) / 0.5);
+  ctx.globalAlpha = Math.max(0, k - out);
+  drawLogo(W/2, 150, 180 + k*8);
+  txt('presenta', W/2, 470, 15, C.suave, 'center', '500', true);
+  ctx.globalAlpha = 1;
+}
+function drawTitle(){
+  panel(24, 58, W-48, 560);
+  drawLogo(W/2, 66, 62);
+  txtOutline('TORTUGA', W/2, 210, 44, C.verde);
+  txtOutline('DEL CORTÉS', W/2, 246, 30, '#FFFFFF');
+  drawTurtle(W/2, 288, Math.sin(t*2)*1.5, t*6);
+  wrapText('Mantén presionado para nadar hacia arriba y suelta para bajar. Nada de Loreto a El Arco: come medusas y esquiva el plástico, las redes, los tiburones y los anzuelos.', W/2, 328, W-80, 17, 13, C.tinta);
+  drawLegend(410);
+  button('MODO HISTORIA', 486, () => startGame('historia'));
+  button('MODO INFINITO', 544, () => startGame('infinito'), false);
+  txt(`Récord historia: ${best.historia}  ·  infinito: ${best.infinito}`, W/2, 590, 12, C.oro, 'center', '700');
+  txt('Creado por RHINOBUILD · Sudcalia Games · v'+VERSION, W/2, 634, 10, 'rgba(246,234,247,.6)', 'center', '500');
+  iconBtn(W-44, 'mute');
+}
+function drawOver(){
+  panel(28, 140, W-56, 380);
+  txtOutline('FIN DEL VIAJE', W/2, 194, 32, C.rojo);
+  txt(mode==='historia' ? `Llegaste hasta ${zoneData(zoneAt(dist)).nombre}` : `Modo infinito · tramo ${zoneAt(dist)+1}`, W/2, 222, 14, C.suave, 'center', '700');
+  txt('PUNTOS', W/2, 254, 13, C.cyan, 'center', '900', true);
+  txt(score+'', W/2, 296, 44, C.oro, 'center', '900', true);
+  txt(`${Math.floor(dist)} m nadados · ${eaten} medusas`, W/2, 322, 14, C.tinta, 'center', '700');
+  if(newBest){ const s = 1+Math.sin(t*6)*.05; ctx.save(); ctx.translate(W/2,352); ctx.scale(s,s); txt('★ ¡NUEVO RÉCORD! ★', 0, 0, 17, C.verde, 'center', '900', true); ctx.restore(); }
+  else txt('Récord: '+best[mode], W/2, 352, 15, C.oro, 'center', '700');
+  wrapText('Dato: ' + DATOS[(Math.floor(dist) + eaten) % DATOS.length], W/2, 382, W-90, 15, 12, C.suave);
+  if(t - stateAt > 0.8){ button('REINTENTAR', 444, () => startGame(mode)); button('MENÚ', 498, () => setState('title'), false, 160); }
+  iconBtn(W-44, 'mute');
+}
+function drawWin(){
+  // playa de anidación
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#6A3FA0'); g.addColorStop(.35,'#FF7A59'); g.addColorStop(.55,'#FFC27A');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(255,220,160,.95)'; ctx.beginPath(); ctx.arc(W/2, 300, 46, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1A8FB5'; ctx.fillRect(0, 300, W, 120);
+  ctx.fillStyle = 'rgba(255,255,255,.5)'; for(let i=0;i<6;i++) ctx.fillRect(((i*70 + t*20) % (W+60)) - 30, 330 + i*12, 40, 2);
+  drawArch(W - 170);
+  ctx.fillStyle = '#E8CF9C'; ctx.beginPath(); ctx.moveTo(0,420); ctx.quadraticCurveTo(W/2, 395, W, 420); ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.fill();
+  // crías rumbo al mar
+  const e = t - stateAt;
+  hatch.crias.forEach((c,i) => {
+    const k = Math.max(0, Math.min(1, (e - c.d) / 4));
+    const y = 600 - k*190;
+    if(k < 1) drawTurtle(c.x + Math.sin(e*3+i)*3, y, -6, e*10+i, 1, .45);
+  });
+  ctx.save(); ctx.translate(0,0);
+  panel(28, 60, W-56, 300);
+  txtOutline('¡LLEGASTE!', W/2, 112, 38, C.verde);
+  wrapText('Cruzaste el Mar de Cortés hasta la playa de anidación de Cabo San Lucas. ¡Las crías ya van rumbo al mar!', W/2, 140, W-96, 17, 13, C.tinta);
+  txt('PUNTOS', W/2, 210, 13, C.cyan, 'center', '900', true);
+  txt(score+'', W/2, 250, 42, C.oro, 'center', '900', true);
+  txt(`+500 por llegar · +${hatch.bonus} por vidas · ${eaten} medusas`, W/2, 276, 12, C.tinta, 'center', '700');
+  if(newBest){ const s = 1+Math.sin(t*6)*.05; ctx.save(); ctx.translate(W/2,306); ctx.scale(s,s); txt('★ ¡NUEVO RÉCORD! ★', 0, 0, 17, C.verde, 'center', '900', true); ctx.restore(); }
+  else txt('Récord: '+best.historia, W/2, 306, 15, C.oro, 'center', '700');
+  txt('Desbloqueaste el modo infinito', W/2, 336, 13, C.cyan, 'center', '700', true);
+  ctx.restore();
+  if(e > 1.2){ button('MODO INFINITO', 560, () => startGame('infinito')); button('MENÚ', 612, () => setState('title'), false, 160); }
+  iconBtn(W-44, 'mute');
+}
+
+function draw(){
+  ui = [];
+  if(state === 'splash'){ drawSplash(); return; }
+  if(state === 'win'){ drawWin(); drawParts(); return; }
+  ctx.save();
+  if(shake > 0) ctx.translate(rnd(-shake,shake)*.4, rnd(-shake,shake)*.4);
+  drawBG();
+  if(state !== 'title') objs.forEach(drawObj);
+  if(state === 'play' || state === 'pause' || state === 'over'){
+    const blink = inv > 0 && Math.floor(t*12)%2===0;
+    drawTurtle(P.x, P.y, P.vy, P.flap, blink ? .35 : 1);
+  }
+  drawParts();
+  ctx.restore();
+  if(state === 'play' || state === 'pause') drawHUD();
+  if(banner && state === 'play'){
+    const a = Math.min(1, banner.life*2, (2.6-banner.life)*4);
+    ctx.globalAlpha = Math.max(0,a);
+    ctx.fillStyle = 'rgba(43,15,46,.82)'; rr(34, 150, W-68, 92, 16); ctx.fill();
+    ctx.strokeStyle = 'rgba(209,25,117,.8)'; ctx.lineWidth = 2; ctx.stroke();
+    txt(banner.pre.toUpperCase(), W/2, 174, 12, C.cyan, 'center', '900', true);
+    txtOutline(banner.txt, W/2, 206, banner.txt.length > 16 ? 23 : 27, C.oro);
+    txt(banner.sub, W/2, 228, 13, C.tinta, 'center', '500');
+    ctx.globalAlpha = 1;
+  }
+  if(state === 'title') drawTitle();
+  if(state === 'pause'){
+    panel(40, 230, W-80, 190);
+    txtOutline('PAUSA', W/2, 290, 40, '#FFFFFF');
+    txt('Toca para continuar', W/2, 322, 15, C.tinta, 'center', '700');
+    button('MENÚ', 374, () => setState('title'), false, 160);
+  }
+  if(state === 'over') drawOver();
+}
+function drawParts(){
+  parts.forEach(p => {
+    ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+    if(p.txt) txtOutline(p.txt, p.x, p.y, 16, p.col);
+    else if(p.bub){ ctx.strokeStyle = p.col; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.stroke(); }
+    else { ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+  });
+  ctx.globalAlpha = 1;
+}
+
+function loop(ts){
+  const dt = Math.min(0.05, (ts - last)/1000 || 0.016); last = ts; t += dt;
+  update(dt); draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// Para pruebas automáticas
+window.__tortuga = { get state(){ return state; }, get dist(){ return dist; }, set dist(v){ dist = v; }, get score(){ return score; }, set lives(v){ lives = v; }, setState, startGame };
+
+// App instalable (sin conexión)
+if('serviceWorker' in navigator && location.protocol === 'https:'){
+  addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+})();
+</script>
+</body>
+</html>

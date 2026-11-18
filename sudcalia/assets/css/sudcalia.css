@@ -137,6 +137,12 @@ a.tarjeta:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -20px rgb
 /* Games */
 .pixeles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-6); }
 .juego { border: 2px solid var(--acento); border-radius: var(--radius-md); padding: var(--space-6); background: var(--fondo-2); }
+.juego-listo { display: flex; flex-direction: column; text-decoration: none; color: var(--tinta); border-color: var(--principal); transition: transform .2s; }
+.juego-listo:hover { transform: translateY(-3px); }
+.juego-listo img { width: 100%; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: var(--space-4); }
+.juego-listo .etiqueta { margin-bottom: var(--space-2); }
+.juego-listo p { flex: 1; }
+.juego-listo .boton { align-self: flex-start; }
 .juego h3 { font-family: var(--font-sans); font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: .04em; }
 .t-games h1, .t-games h2 { font-family: var(--font-sans); font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: .01em; }
 
