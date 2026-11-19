@@ -1,0 +1,35 @@
+{
+  "name": "Cazapalabras · Sudcalia Games",
+  "short_name": "Cazapalabras",
+  "description": "Sopa de letras con temas al azar: animales, frutas, deportes, países, el espacio y más.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "lang": "es-MX",
+  "background_color": "#2B0F2E",
+  "theme_color": "#2B0F2E",
+  "categories": [
+    "games",
+    "word"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

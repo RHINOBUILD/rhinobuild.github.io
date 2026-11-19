@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="Junta rubíes, zafiros, esmeraldas y diamantes de 3 en 3 en este rompecabezas de Sudcalia Games.">
+<meta property="og:title" content="Cofre de Joyas · Sudcalia Games">
+<meta property="og:description" content="Junta 3 o más joyas iguales, arma combos y supera cada nivel.">
+<meta property="og:image" content="https://rhinobuild.github.io/sudcalia/games/cofre-de-joyas/portada.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#2B0F2E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Cofre de Joyas · Sudcalia Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,500;0,700;1,800;1,900&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:#2B0F2E;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;font-family:'DM Sans',system-ui,sans-serif}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);box-sizing:border-box;background:radial-gradient(circle at 50% 40%,#3B1840,#2B0F2E 70%)}
+  noscript{color:#F6EAF7;padding:24px;display:block;text-align:center}
+  canvas{display:block;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+<noscript>Activa JavaScript para jugar Cofre de Joyas.</noscript>
+<div id="wrap"><canvas id="c" aria-label="Juego Cofre de Joyas" role="img"></canvas></div>
+<script>
+(() => {
+const W = 360, H = 640;
+const VERSION = '1.0.0';
+const cv = document.getElementById('c'), ctx = cv.getContext('2d'), wrap = document.getElementById('wrap');
+let scale = 1;
+function resize(){
+  const s = Math.min(wrap.clientWidth / W, wrap.clientHeight / H);
+  scale = s;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  cv.style.width = (W*s)+'px'; cv.style.height = (H*s)+'px';
+  cv.width = Math.round(W*s*dpr); cv.height = Math.round(H*s*dpr);
+  ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+  cv.style.borderRadius = (s*W >= innerWidth - 2) ? '0' : '14px';
+}
+addEventListener('resize', resize); resize();
+
+// ---------- Marca ----------
+const C = { panel:'#2B0F2E', panel2:'#3B1840', mag:'#D11975', cyan:'#00D4E5', tinta:'#F6EAF7', suave:'#C9B3CD', oro:'#FFD34D', verde:'#7DFFB0', rojo:'#FF7A8A' };
+const logo = new Image(); let logoOk = false;
+logo.onload = () => logoOk = true; logo.src = '../../assets/logos/games-simbolo.png';
+const FONT = '"DM Sans", system-ui, sans-serif';
+
+// ---------- Guardado (opcional) ----------
+const store = {
+  get(k, d){ try { const v = localStorage.getItem('sg_joyas_'+k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem('sg_joyas_'+k, JSON.stringify(v)); } catch(e){} }
+};
+let best = store.get('best', 0);
+function saveBest(){ store.set('best', best); }
+
+// ---------- Audio ----------
+let ac = null, muted = store.get('mute', false);
+function audio(){ if(!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(ac && ac.state==='suspended') ac.resume().catch(()=>{}); }
+function beep(f, d=0.1, type='sine', v=0.15, slide=0){
+  if(!ac || muted) return;
+  const t0 = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t0);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,f+slide), t0+d);
+  g.gain.setValueAtTime(v, t0); g.gain.exponentialRampToValueAtTime(0.001, t0+d);
+  o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0+d);
+}
+const sfx = {
+  pick:  () => beep(520,0.06,'triangle',0.08),
+  swap:  () => beep(330,0.08,'sine',0.08,180),
+  bad:   () => beep(200,0.18,'square',0.06,-60),
+  match: (n) => { const b = 440*Math.pow(1.12, Math.min(n,8)); beep(b,0.1,'triangle',0.12); setTimeout(()=>beep(b*1.5,0.12,'triangle',0.1),60); },
+  line:  () => { beep(880,0.3,'sawtooth',0.07,-500); },
+  level: () => { [523,659,784,1046,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,0.16,'triangle',0.12),i*100)); },
+  over:  () => { [392,330,262,196].forEach((f,i)=>setTimeout(()=>beep(f,0.25,'triangle',0.13),i*180)); },
+  shuffle: () => { [300,400,500,600].forEach((f,i)=>setTimeout(()=>beep(f,0.06,'sine',0.08),i*50)); }
+};
+
+// ---------- Tablero ----------
+const N = 8, CS = 42, GX = (W - N*CS)/2, GY = 176, TYPES = 6;
+let grid, pops, parts, phase, pend, sel, drag, combo, score, level, target, levelStart, moves, state, banner, lastAct, overAt, newBest, t = 0, last = 0;
+
+const rnd = (a,b) => a + Math.random()*(b-a);
+const ri = n => Math.floor(Math.random()*n);
+function tile(type, c, r, y){ return { t: type, sp: null, x: c, y: (y===undefined? r : y) }; }
+
+function fillBoard(){
+  grid = [];
+  for(let r=0;r<N;r++){ grid.push([]); for(let c=0;c<N;c++){
+    let ty, guard = 0;
+    do { ty = ri(TYPES); guard++; } while(guard < 30 && (
+      (c>=2 && grid[r][c-1].t===ty && grid[r][c-2].t===ty) ||
+      (r>=2 && grid[r-1][c].t===ty && grid[r-2][c].t===ty)));
+    grid[r].push(tile(ty, c, r, r - N - 1));
+  }}
+  if(!findMove()) fillBoard();
+}
+
+function movesFor(lv){ return Math.max(16, 24 - Math.floor(lv/2)); }
+function goalFor(lv){ return 900 + lv*450; }
+
+function reset(){
+  pops = []; parts = []; phase = 'idle'; pend = null; sel = null; drag = null; combo = 1;
+  score = 0; level = 1; levelStart = 0; target = goalFor(1); moves = movesFor(1);
+  banner = null; lastAct = t; newBest = false;
+  fillBoard();
+}
+reset();
+
+function findMatches(){
+  const runs = [];
+  for(let r=0;r<N;r++){ let c=0; while(c<N){ const a = grid[r][c]; let e=c+1; if(a) while(e<N && grid[r][e] && grid[r][e].t===a.t) e++; if(a && e-c>=3){ const cells=[]; for(let k=c;k<e;k++) cells.push([r,k]); runs.push({cells, dir:'h', t:a.t}); } c = (e>c+1)? e : c+1; } }
+  for(let c=0;c<N;c++){ let r=0; while(r<N){ const a = grid[r][c]; let e=r+1; if(a) while(e<N && grid[e][c] && grid[e][c].t===a.t) e++; if(a && e-r>=3){ const cells=[]; for(let k=r;k<e;k++) cells.push([k,c]); runs.push({cells, dir:'v', t:a.t}); } r = (e>r+1)? e : r+1; } }
+  return runs;
+}
+
+function swapCells(a,b){ const tmp = grid[a[0]][a[1]]; grid[a[0]][a[1]] = grid[b[0]][b[1]]; grid[b[0]][b[1]] = tmp; }
+
+function findMove(){
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    for(const [dr,dc] of [[0,1],[1,0]]){
+      const r2=r+dr, c2=c+dc; if(r2>=N||c2>=N) continue;
+      swapCells([r,c],[r2,c2]); const ok = findMatches().length>0; swapCells([r,c],[r2,c2]);
+      if(ok) return [[r,c],[r2,c2]];
+    }
+  }
+  return null;
+}
+
+function burst(x,y,col,n=8){ for(let i=0;i<n;i++) parts.push({ x, y, vx: rnd(-2.6,2.6), vy: rnd(-3,1.5), life: 1, col, r: rnd(1.8,3.6) }); }
+function floatTxt(x,y,txt,col){ parts.push({ x, y, vx: 0, vy: -0.7, life: 1.2, txt, col }); }
+const COLS = ['#ff3b5c','#2ee07a','#ffb020','#3b8bff','#b05cff','#d9f6ff'];
+const cx = c => GX + c*CS + CS/2, cy = r => GY + r*CS + CS/2;
+
+function clearRuns(runs, a, b){
+  const key = (r,c) => r*N+c;
+  const set = new Set();
+  runs.forEach(run => run.cells.forEach(([r,c]) => set.add(key(r,c))));
+  // piezas especiales (4 o más en línea)
+  const creates = [];
+  runs.forEach(run => {
+    if(run.cells.length < 4) return;
+    let pos = run.cells[Math.floor(run.cells.length/2)];
+    for(const p of [a,b]) if(p && run.cells.some(q => q[0]===p[0] && q[1]===p[1])) pos = p;
+    if(!creates.some(cr => cr.r===pos[0] && cr.c===pos[1])) creates.push({ r: pos[0], c: pos[1], t: run.t, sp: run.dir });
+  });
+  // expandir piezas especiales que explotan
+  const queue = [...set]; let lines = 0;
+  while(queue.length){
+    const k = queue.pop(), r = Math.floor(k/N), c = k%N, tl = grid[r][c];
+    if(!tl || !tl.sp || tl.used) continue;
+    tl.used = true; lines++;
+    for(let i=0;i<N;i++){ const nk = tl.sp==='h' ? key(r,i) : key(i,c); if(!set.has(nk)){ set.add(nk); queue.push(nk); } }
+    parts.push({ line: tl.sp, r, c, life: 0.6 });
+  }
+  creates.forEach(cr => set.delete(key(cr.r, cr.c)));
+  let pts = 0, sx = 0, sy = 0, n = 0;
+  set.forEach(k => {
+    const r = Math.floor(k/N), c = k%N, tl = grid[r][c]; if(!tl) return;
+    pops.push({ t: tl.t, sp: tl.sp, x: c, y: r, life: 1 });
+    burst(cx(c), cy(r), COLS[tl.t], 5);
+    grid[r][c] = null; pts += 10*combo; sx += cx(c); sy += cy(r); n++;
+  });
+  creates.forEach(cr => { const tl = tile(cr.t, cr.c, cr.r); tl.sp = cr.sp; tl.born = 1; grid[cr.r][cr.c] = tl; pts += 20*combo; burst(cx(cr.c), cy(cr.r), '#fff', 10); });
+  score += pts;
+  if(n) floatTxt(sx/n, sy/n, '+'+pts, combo>1 ? '#7dffb0' : '#ffd34d');
+  if(combo >= 2) banner = { txt: combo>=4 ? '¡Increíble!' : combo>=3 ? '¡Súper!' : '¡Combo!', sub: '×'+combo, life: 1.1, small: true };
+  lines ? sfx.line() : sfx.match(combo);
+}
+
+function gravity(){
+  for(let c=0;c<N;c++){
+    let w = N-1;
+    for(let r=N-1;r>=0;r--){ if(grid[r][c]){ if(r!==w){ grid[w][c] = grid[r][c]; grid[r][c] = null; } w--; } }
+    for(let r=w;r>=0;r--) grid[r][c] = tile(ri(TYPES), c, r, r - (w+1) - 0.3);
+  }
+}
+
+function shuffle(){
+  let guard = 0;
+  do {
+    const all = []; for(let r=0;r<N;r++) for(let c=0;c<N;c++) all.push(grid[r][c]);
+    for(let i=all.length-1;i>0;i--){ const j = ri(i+1); [all[i],all[j]] = [all[j],all[i]]; }
+    for(let r=0;r<N;r++) for(let c=0;c<N;c++) grid[r][c] = all[r*N+c];
+    guard++;
+  } while(guard < 40 && (findMatches().length || !findMove()));
+  if(findMatches().length || !findMove()) fillBoard();
+  banner = { txt: 'Sin jugadas', sub: 'Barajando el tablero…', life: 1.6 };
+  sfx.shuffle();
+}
+
+function endCheck(){
+  if(score >= target){
+    const bonus = moves * 30; score += bonus;
+    state = 'level'; overAt = t; levelBonus = bonus; sfx.level();
+    if(score > best){ best = score; saveBest(); }
+    return;
+  }
+  if(moves <= 0){
+    state = 'over'; overAt = t;
+    if(score > best){ best = score; newBest = true; saveBest(); }
+    sfx.over(); return;
+  }
+  if(!findMove()) shuffle();
+}
+let levelBonus = 0, hintCache = null, hintFor = -1;
+function nextLevel(){
+  level++; levelStart = score; target = score + goalFor(level); moves = movesFor(level);
+  state = 'play'; phase = 'idle'; lastAct = t;
+  banner = { txt: 'Nivel '+level, sub: 'Meta: '+goalFor(level)+' pts en '+moves+' movimientos', life: 2 };
+}
+
+function trySwap(a,b){
+  if(Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1]) !== 1) return;
+  swapCells(a,b); pend = { a, b }; phase = 'swap'; sel = null; lastAct = t; sfx.swap();
+}
+
+// ---------- Entrada ----------
+function pos(e){
+  const p = e.touches ? (e.touches[0] || e.changedTouches[0]) : e;
+  const r = cv.getBoundingClientRect();
+  return { x: (p.clientX - r.left)/scale, y: (p.clientY - r.top)/scale };
+}
+function cellAt(x,y){
+  const c = Math.floor((x-GX)/CS), r = Math.floor((y-GY)/CS);
+  return (c>=0 && c<N && r>=0 && r<N) ? [r,c] : null;
+}
+function down(e){
+  e.preventDefault(); audio();
+  const { x, y } = pos(e);
+  if(y < 46 && x > W-46){ muted = !muted; store.set('mute', muted); return; }
+  if(state === 'title'){ reset(); state = 'play'; banner = { txt: 'Nivel 1', sub: 'Meta: '+goalFor(1)+' pts en '+moves+' movimientos', life: 2 }; return; }
+  if(state === 'over'){ if(t - overAt > 0.8){ reset(); state = 'play'; } return; }
+  if(state === 'level'){ if(t - overAt > 0.8) nextLevel(); return; }
+  if(state !== 'play' || phase !== 'idle') return;
+  const cell = cellAt(x,y); if(!cell) { sel = null; return; }
+  if(sel && Math.abs(sel[0]-cell[0]) + Math.abs(sel[1]-cell[1]) === 1){ trySwap(sel, cell); return; }
+  sel = cell; drag = { x, y, cell }; sfx.pick(); lastAct = t;
+}
+function move(e){
+  if(!drag) return; e.preventDefault();
+  const { x, y } = pos(e), dx = x - drag.x, dy = y - drag.y;
+  if(Math.max(Math.abs(dx), Math.abs(dy)) < 16) return;
+  const [r,c] = drag.cell;
+  const tgt = Math.abs(dx) > Math.abs(dy) ? [r, c + Math.sign(dx)] : [r + Math.sign(dy), c];
+  drag = null;
+  if(tgt[0]>=0 && tgt[0]<N && tgt[1]>=0 && tgt[1]<N && phase==='idle') trySwap([r,c], tgt);
+}
+function up(){ drag = null; }
+cv.addEventListener('touchstart', down, {passive:false});
+cv.addEventListener('touchmove', move, {passive:false});
+cv.addEventListener('touchend', up);
+cv.addEventListener('mousedown', down);
+addEventListener('mousemove', move);
+addEventListener('mouseup', up);
+addEventListener('keydown', e => { if(e.code==='KeyM') muted = !muted; store.set('mute', muted); });
+
+// ---------- Update ----------
+function moveToward(v, to, step){ return Math.abs(to-v) <= step ? to : v + Math.sign(to-v)*step; }
+function update(dt){
+  let moving = false;
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    const tl = grid[r][c]; if(!tl) continue;
+    const fall = tl.y < r - 0.02;
+    if(fall){ tl.vy = (tl.vy||3) + dt*30; tl.y = Math.min(r, tl.y + tl.vy*dt); if(tl.y >= r) tl.vy = 0; }
+    else { tl.y = moveToward(tl.y, r, dt*8); tl.vy = 0; }
+    tl.x = moveToward(tl.x, c, dt*8);
+    if(tl.born) tl.born = Math.max(0, tl.born - dt*3);
+    if(tl.x !== c || tl.y !== r) moving = true;
+  }
+  for(let i=pops.length-1;i>=0;i--){ pops[i].life -= dt*5; if(pops[i].life <= 0) pops.splice(i,1); }
+  for(let i=parts.length-1;i>=0;i--){ const p = parts[i]; if(p.line===undefined){ p.x += p.vx; p.y += p.vy; p.vy += p.txt ? 0 : 0.12; } p.life -= dt*(p.txt?1:p.line?1.6:2); if(p.life<=0) parts.splice(i,1); }
+  if(banner){ banner.life -= dt; if(banner.life<=0) banner = null; }
+  if(state !== 'play') return;
+  if(moving || pops.length) return;
+
+  if(phase === 'swap'){
+    const runs = findMatches();
+    if(!runs.length){ swapCells(pend.a, pend.b); phase = 'back'; sfx.bad(); }
+    else { moves--; combo = 1; clearRuns(runs, pend.a, pend.b); phase = 'fall'; }
+  } else if(phase === 'back'){ phase = 'idle'; pend = null; }
+  else if(phase === 'fall'){ gravity(); phase = 'check'; }
+  else if(phase === 'check'){
+    const runs = findMatches();
+    if(runs.length){ combo++; clearRuns(runs); phase = 'fall'; }
+    else { phase = 'idle'; pend = null; lastAct = t; endCheck(); }
+  }
+}
+
+// ---------- Dibujo ----------
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x,y,w,h,r) : ctx.rect(x,y,w,h); }
+function txt(s,x,y,size,col,align='center',weight=800){ ctx.font = `${weight>=800?'italic ':''}${weight>=800?900:weight} ${size}px ${FONT}`; ctx.textAlign = align; ctx.fillStyle = col; ctx.fillText(s,x,y); }
+function txtOutline(s,x,y,size,col,stroke=C.panel){ ctx.font = `italic 900 ${size}px ${FONT}`; ctx.textAlign='center'; ctx.lineJoin='round'; ctx.lineWidth = size/5; ctx.strokeStyle = stroke; ctx.strokeText(s,x,y); ctx.fillStyle = col; ctx.fillText(s,x,y); }
+
+const stars = Array.from({length: 40}, () => ({ x: Math.random()*W, y: Math.random()*150, r: Math.random()*1.4+.3, p: Math.random()*6 }));
+function drawBG(){
+  let g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0b1d3a'); g.addColorStop(.45,'#3b2a5c'); g.addColorStop(.75,'#c4664a'); g.addColorStop(1,'#e8a25c');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  stars.forEach(s => { ctx.globalAlpha = .4 + Math.sin(t*2+s.p)*.3; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); });
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(255,240,200,.9)'; ctx.beginPath(); ctx.arc(30, 30, 12, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#0b1d3a'; ctx.globalAlpha=.35; ctx.beginPath(); ctx.arc(35, 27, 10, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
+  // cerros y cardones al fondo
+  ctx.fillStyle = '#5a2e3e';
+  ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(0,560); ctx.quadraticCurveTo(70,520,140,555); ctx.quadraticCurveTo(220,505,290,550); ctx.quadraticCurveTo(330,530,W,545); ctx.lineTo(W,H); ctx.fill();
+  ctx.fillStyle = '#3a1f2c';
+  ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(0,590); ctx.quadraticCurveTo(110,560,200,590); ctx.quadraticCurveTo(290,565,W,585); ctx.lineTo(W,H); ctx.fill();
+}
+
+// Joyas: polígonos facetados (coordenadas unitarias)
+const GEMS = [
+  { name:'Rubí',      c:['#ff8fa3','#ff3b5c','#a3112e'], pts: Array.from({length:6},(_,i)=>[Math.cos(-Math.PI/2+i*Math.PI/3), Math.sin(-Math.PI/2+i*Math.PI/3)]) },
+  { name:'Esmeralda', c:['#9dffc4','#2ee07a','#0f7a3f'], pts: [[-.45,-1],[.45,-1],[.75,-.7],[.75,.7],[.45,1],[-.45,1],[-.75,.7],[-.75,-.7]] },
+  { name:'Topacio',   c:['#ffe08a','#ffb020','#b8650a'], pts: Array.from({length:8},(_,i)=>[Math.cos(-Math.PI/2+i*Math.PI/4)*.95, Math.sin(-Math.PI/2+i*Math.PI/4)*.95]) },
+  { name:'Zafiro',    c:['#a8cbff','#3b8bff','#163f9e'], pts: [[0,-1.05],[.8,0],[0,1.05],[-.8,0]] },
+  { name:'Amatista',  c:['#e2b8ff','#b05cff','#5d1f99'], pts: [[0,-1],[.95,.8],[-.95,.8]] },
+  { name:'Diamante',  c:['#ffffff','#bff1ff','#5bb8d6'], pts: [[-.5,-.75],[.5,-.75],[.95,-.2],[0,1],[-.95,-.2]] }
+];
+const NAMES = GEMS.map(g => g.name);
+function drawPiece(type, x, y, s=1, sp=null){
+  const R = 15*s, g = GEMS[type];
+  ctx.save(); ctx.translate(x,y);
+  ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(0, R*1.0, R*.7, R*.2, 0, 0, Math.PI*2); ctx.fill();
+  if(sp){
+    ctx.save(); ctx.beginPath(); ctx.arc(0,0,R*1.22,0,Math.PI*2); ctx.clip();
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(-R*1.3,-R*1.3,R*2.6,R*2.6);
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    for(let i=-3;i<=3;i++){ if(sp==='h') ctx.fillRect(-R*1.3, i*R*.38 - R*.08, R*2.6, R*.16); else ctx.fillRect(i*R*.38 - R*.08, -R*1.3, R*.16, R*2.6); }
+    ctx.restore();
+    ctx.strokeStyle = '#ffd34d'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0,0,R*1.22,0,Math.PI*2); ctx.stroke();
+  }
+  const O = g.pts.map(([a,b]) => [a*R, b*R]);
+  const I = g.pts.map(([a,b]) => [a*R*.5, b*R*.5 - R*.08]);
+  const n = O.length;
+  ctx.beginPath(); O.forEach(([a,b],i) => i ? ctx.lineTo(a,b) : ctx.moveTo(a,b)); ctx.closePath();
+  ctx.fillStyle = g.c[1]; ctx.fill();
+  // facetas: claras arriba a la izquierda, oscuras abajo a la derecha
+  for(let i=0;i<n;i++){
+    const j = (i+1)%n, mx = (O[i][0]+O[j][0])/2, my = (O[i][1]+O[j][1])/2;
+    const k = (-mx - my) / (R*1.4);
+    ctx.fillStyle = k > .15 ? g.c[0] : k < -.15 ? g.c[2] : g.c[1];
+    ctx.globalAlpha = .55 + Math.min(.4, Math.abs(k)*.4);
+    ctx.beginPath(); ctx.moveTo(O[i][0],O[i][1]); ctx.lineTo(O[j][0],O[j][1]); ctx.lineTo(I[j][0],I[j][1]); ctx.lineTo(I[i][0],I[i][1]); ctx.closePath(); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.beginPath(); I.forEach(([a,b],i) => i ? ctx.lineTo(a,b) : ctx.moveTo(a,b)); ctx.closePath();
+  ctx.fillStyle = g.c[0]; ctx.globalAlpha = .85; ctx.fill(); ctx.globalAlpha = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1;
+  for(let i=0;i<n;i++){ ctx.beginPath(); ctx.moveTo(O[i][0],O[i][1]); ctx.lineTo(I[i][0],I[i][1]); ctx.stroke(); }
+  ctx.beginPath(); O.forEach(([a,b],i) => i ? ctx.lineTo(a,b) : ctx.moveTo(a,b)); ctx.closePath();
+  ctx.strokeStyle = g.c[2]; ctx.lineWidth = 1.4; ctx.stroke();
+  // destello
+  const tw = (Math.sin(t*2.2 + x*.07 + y*.05) + 1)/2;
+  ctx.fillStyle = 'rgba(255,255,255,'+(.5+tw*.5)+')';
+  const sx = -R*.32, sy = -R*.42, z = R*(.12 + tw*.1);
+  ctx.beginPath(); ctx.moveTo(sx, sy-z*2); ctx.lineTo(sx+z*.5, sy-z*.5); ctx.lineTo(sx+z*2, sy); ctx.lineTo(sx+z*.5, sy+z*.5); ctx.lineTo(sx, sy+z*2); ctx.lineTo(sx-z*.5, sy+z*.5); ctx.lineTo(sx-z*2, sy); ctx.lineTo(sx-z*.5, sy-z*.5); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawBoard(){
+  // marco
+  ctx.fillStyle = 'rgba(43,15,46,.82)'; rr(GX-8, GY-8, N*CS+16, N*CS+16, 18); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,212,229,.6)'; ctx.lineWidth = 2; ctx.stroke();
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    ctx.fillStyle = (r+c)%2 ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.10)';
+    rr(GX+c*CS+1.5, GY+r*CS+1.5, CS-3, CS-3, 8); ctx.fill();
+  }
+  // pista tras 6 s sin jugar
+  let hint = null;
+  if(state==='play' && phase==='idle' && t - lastAct > 6){ if(hintFor !== lastAct){ hintCache = findMove(); hintFor = lastAct; } hint = hintCache; }
+  ctx.save(); rr(GX-4, GY-4, N*CS+8, N*CS+8, 14); ctx.clip();
+  if(sel){ const p = 1 + Math.sin(t*8)*.5; ctx.strokeStyle = '#ffd34d'; ctx.lineWidth = 2.5+p; rr(GX+sel[1]*CS+2, GY+sel[0]*CS+2, CS-4, CS-4, 9); ctx.stroke(); }
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    const tl = grid[r][c]; if(!tl) continue;
+    let s = 1 + (tl.born ? tl.born*.4 : 0), ox = 0;
+    if(hint && hint.some(h => h[0]===r && h[1]===c)) ox = Math.sin(t*14)*2.5;
+    if(sel && sel[0]===r && sel[1]===c) s *= 1.08 + Math.sin(t*8)*.04;
+    drawPiece(tl.t, GX + tl.x*CS + CS/2 + ox, GY + tl.y*CS + CS/2, s, tl.sp);
+  }
+  pops.forEach(p => { ctx.globalAlpha = Math.max(0,p.life); drawPiece(p.t, cx(p.x), cy(p.y), 1 + (1-p.life)*.6, p.sp); });
+  ctx.globalAlpha = 1;
+  parts.forEach(p => { if(p.line===undefined) return; ctx.globalAlpha = Math.max(0,p.life); ctx.fillStyle = '#fffbe0';
+    if(p.line==='h') ctx.fillRect(GX, cy(p.r)-6*p.life, N*CS, 12*p.life); else ctx.fillRect(cx(p.c)-6*p.life, GY, 12*p.life, N*CS); });
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawLogo(cx, y, size){
+  if(logoOk) ctx.drawImage(logo, cx - size/2, y, size, size);
+  const ty = y + size + size*0.2;
+  txt('SUDCALIA', cx, ty, size*0.24, C.tinta, 'center', 900);
+  ctx.font = `italic 900 ${size*0.2}px ${FONT}`; ctx.textAlign = 'left';
+  const w1 = ctx.measureText('GAM').width, w2 = ctx.measureText('ES').width, x0 = cx - (w1+w2)/2;
+  ctx.fillStyle = C.mag; ctx.fillText('GAM', x0, ty + size*0.22);
+  ctx.fillStyle = C.cyan; ctx.fillText('ES', x0 + w1, ty + size*0.22);
+}
+
+function drawMute(){
+  ctx.fillStyle = 'rgba(43,15,46,.55)'; rr(W-42,8,34,34,10); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(W-33,20); ctx.lineTo(W-28,20); ctx.lineTo(W-22,15); ctx.lineTo(W-22,35); ctx.lineTo(W-28,30); ctx.lineTo(W-33,30); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+  if(muted){ ctx.beginPath(); ctx.moveTo(W-19,19); ctx.lineTo(W-12,31); ctx.moveTo(W-12,19); ctx.lineTo(W-19,31); ctx.stroke(); }
+  else { ctx.beginPath(); ctx.arc(W-21,25,6,-0.9,0.9); ctx.stroke(); }
+}
+
+function drawHUD(){
+  txtOutline('COFRE DE JOYAS', W/2-10, 38, 24, '#ffd34d', C.panel);
+  ctx.fillStyle = 'rgba(43,15,46,.8)'; rr(12, 58, W-24, 96, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,212,229,.45)'; ctx.lineWidth = 1.5; ctx.stroke();
+  txt('NIVEL', 52, 84, 12, C.tinta, 'center', 600);
+  txt(level+'', 52, 114, 30, '#7dffb0');
+  txt('PUNTOS', W/2, 84, 12, C.tinta, 'center', 600);
+  txt(score+'', W/2, 114, 30, '#ffd34d');
+  txt('MOVS', W-52, 84, 12, C.tinta, 'center', 600);
+  txt(moves+'', W-52, 114, 30, moves <= 3 ? '#ff7a7a' : '#ffffff');
+  // barra de meta
+  const pr = Math.max(0, Math.min(1, (score - levelStart)/(target - levelStart)));
+  ctx.fillStyle = 'rgba(255,255,255,.12)'; rr(28, 130, W-56, 12, 6); ctx.fill();
+  const g = ctx.createLinearGradient(28,0,W-28,0); g.addColorStop(0,'#7dffb0'); g.addColorStop(1,'#ffd34d');
+  if(pr > 0){ ctx.fillStyle = g; rr(28, 130, Math.max(12,(W-56)*pr), 12, 6); ctx.fill(); }
+  txt('Meta '+(target - levelStart), W-30, 166, 11, 'rgba(246,234,247,.8)', 'right', 600);
+  drawMute();
+}
+
+function card(y,h){ ctx.fillStyle = 'rgba(43,15,46,.92)'; rr(28,y,W-56,h,20); ctx.fill(); ctx.strokeStyle = 'rgba(0,212,229,.55)'; ctx.lineWidth = 2; ctx.stroke(); }
+function button(label, y){
+  const s = 1 + Math.sin(t*5)*0.03;
+  ctx.save(); ctx.translate(W/2, y); ctx.scale(s,s);
+  ctx.fillStyle = '#8E0F4F'; rr(-110,-20,220,48,24); ctx.fill();
+  ctx.fillStyle = C.mag; rr(-110,-24,220,46,23); ctx.fill();
+  txt(label, 0, 7, 20, '#fff', 'center', 900);
+  ctx.restore();
+}
+
+function drawTitle(){
+  card(96, 490);
+  drawLogo(W/2, 104, 44);
+  txtOutline('COFRE', W/2, 218, 50, C.oro, C.panel);
+  txtOutline('DE JOYAS', W/2, 254, 30, '#ffffff', C.panel);
+  // vitrina de piezas
+  for(let i=0;i<6;i++){ const x = 70 + (i%3)*110, y = 294 + Math.floor(i/3)*62 + Math.sin(t*3+i)*3; drawPiece(i, x, y, 1.05); txt(NAMES[i], x, y+34, 11, C.tinta, 'center', 600); }
+  const lines = ['Desliza para intercambiar dos joyas y','junta 3 o más iguales. Con 4 en línea','creas una pieza rayada que limpia la fila.'];
+  lines.forEach((l,i) => txt(l, W/2, 430+i*18, 13.5, C.tinta, 'center', 500));
+  button('¡A JUGAR!', 506);
+  if(best) txt('Mejor marca: '+best, W/2, 568, 14, '#ffd34d', 'center', 600);
+  txt('Creado por RHINOBUILD · Sudcalia Games · v'+VERSION, W/2, 634, 10, 'rgba(246,234,247,.6)', 'center', 500);
+  drawMute();
+}
+
+function drawLevel(){
+  card(170, 290);
+  txtOutline('¡NIVEL '+level+' SUPERADO!', W/2, 224, 26, '#7dffb0', C.panel);
+  [0,3,5].forEach((ty,i) => drawPiece(ty, W/2-60+i*60, 268 + Math.sin(t*4+i)*4, 1.1));
+  txt('Bono por movimientos: +'+levelBonus, W/2, 318, 15, C.tinta, 'center', 600);
+  txt(score+'', W/2, 360, 40, '#ffd34d');
+  if(t - overAt > 0.8) button('SIGUIENTE NIVEL', 414);
+}
+
+function drawOver(){
+  card(150, 330);
+  txtOutline('SIN MOVIMIENTOS', W/2, 206, 30, '#ff9a9a', C.panel);
+  txt('Puntos', W/2, 248, 15, C.tinta, 'center', 600);
+  txt(score+'', W/2, 290, 44, '#ffd34d');
+  txt('Llegaste al nivel '+level, W/2, 318, 14, C.tinta, 'center', 600);
+  if(newBest){ const s = 1+Math.sin(t*6)*.05; ctx.save(); ctx.translate(W/2,352); ctx.scale(s,s); txt('★ ¡NUEVA MEJOR MARCA! ★', 0, 0, 16, '#7dffb0'); ctx.restore(); }
+  else txt('Mejor marca: '+best, W/2, 352, 15, '#ffd34d', 'center', 600);
+  const tips = ['Consejo: juega abajo del tablero para provocar combos.','Consejo: con 4 en línea creas una joya rayada.','Consejo: cada movimiento que sobra vale 30 puntos.'];
+  txt(tips[level % 3], W/2, 386, 11.5, 'rgba(246,234,247,.85)', 'center', 500);
+  if(t - overAt > 0.8) button('JUGAR DE NUEVO', 434);
+}
+
+function draw(){
+  drawBG();
+  if(state === 'title'){ drawTitle(); return; }
+  drawHUD();
+  drawBoard();
+  parts.forEach(p => {
+    if(p.line!==undefined) return;
+    ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+    if(p.txt) txtOutline(p.txt, p.x, p.y, 18, p.col, C.panel);
+    else { ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+  });
+  ctx.globalAlpha = 1;
+  txt('Creado por RHINOBUILD · Sudcalia Games · v'+VERSION, W/2, 634, 10, 'rgba(246,234,247,.6)', 'center', 500);
+  if(banner){
+    const a = Math.min(1, banner.life*2.5);
+    ctx.globalAlpha = a;
+    if(banner.small){ txtOutline(banner.txt+' '+banner.sub, W/2, GY + N*CS + 40, 26, '#7dffb0', C.panel); }
+    else {
+      ctx.fillStyle = 'rgba(43,15,46,.88)'; rr(36, 300, W-72, 76, 16); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,212,229,.55)'; ctx.lineWidth = 2; ctx.stroke();
+      txtOutline(banner.txt, W/2, 334, 26, '#ffd34d', C.panel);
+      txt(banner.sub, W/2, 358, 13, C.tinta, 'center', 600);
+    }
+    ctx.globalAlpha = 1;
+  }
+  if(state === 'level') drawLevel();
+  if(state === 'over') drawOver();
+}
+
+state = 'title';
+function loop(ts){
+  const dt = Math.min(0.05, (ts - last)/1000 || 0.016); last = ts; t += dt;
+  update(dt); draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// App instalable (sin conexión)
+if('serviceWorker' in navigator && location.protocol === 'https:'){
+  addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+})();
+</script>
+</body>
+</html>
