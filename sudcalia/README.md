@@ -11,11 +11,12 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | `ediciones.html` | Libros de F. C.: *El último guardián de los recuerdos* (juvenil 10+, gratis), *Dentro de mi cabeza* (terror 16+, gratis) y La Saga de los Robles Eternos (4 libros, el primero gratis) |
 | `estudios.html` | Estudio de animación: adaptación de la saga (12 episodios por temporada, 16+) |
 | `play.html` | Plataforma de streaming, en modo "próximamente" con acceso anticipado |
-| `games.html` | Videojuegos: *Tortuga del Cortés*, *Cofre de Joyas*, *Cazapalabras* y *Bastión Estelar* (jugables) y registro de beta testers |
+| `games.html` | Videojuegos: *Tortuga del Cortés*, *Cofre de Joyas*, *Cazapalabras*, *Bastión Estelar* y *Dentro de mi cabeza* (jugables) y registro de beta testers |
 | `games/tortuga-del-cortes/` | Juego 01 · arcade: HTML5, instalable como app y listo para empaquetar para Google Play (ver su README) |
 | `games/cofre-de-joyas/` | Juego 02 · rompecabezas de juntar 3 con joyas, por niveles (ver su README) |
 | `games/cazapalabras/` | Juego 03 · sopa de letras en cinco rondas con temas al azar (ver su README) |
 | `games/bastion-estelar/` | Juego 04 · estrategia: defensa de torres con 3 sectores (ver su README) |
+| `games/dentro-de-mi-cabeza/` | Juego 05 · terror psicológico en primera persona (3D), basado en el Cuento I del libro (ver su README) |
 | `libro.html` | Ficha de cada libro: portada, sinopsis, precio, botones de compra y muestra (`libro.html?libro=libro-1`) |
 | `leer.html` | Lector de la muestra gratuita (`leer.html?libro=libro-1`) |
 | `assets/data/libros.json` | **Los datos de la tienda**: sinopsis, frase, portada, muestra, páginas y enlaces de compra de cada libro. La saga va en `libros`; los títulos independientes, en `otros` |
