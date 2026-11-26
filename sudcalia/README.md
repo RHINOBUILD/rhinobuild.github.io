@@ -9,7 +9,7 @@ Es HTML estático, listo para **GitHub Pages**. Los registros de interesados se 
 | --- | --- |
 | `index.html` | Página principal: las cinco líneas y el registro |
 | `ediciones.html` | Libros de F. C.: *El último guardián de los recuerdos* (juvenil 10+, gratis), *Dentro de mi cabeza* (terror 16+, gratis) y La Saga de los Robles Eternos (4 libros, el primero gratis) |
-| `estudios.html` | Estudio de animación: adaptación de la saga (12 episodios por temporada, 16+) |
+| `estudios.html` | Estudio de animación: Dátil Amargo, la frutinovela (tráiler y capítulos) |
 | `play.html` | Plataforma de streaming, en modo "próximamente" con acceso anticipado |
 | `games.html` | Videojuegos: *Tortuga del Cortés*, *Cofre de Joyas*, *Cazapalabras*, *Bastión Estelar* y *Dentro de mi cabeza* (jugables) y registro de beta testers |
 | `games/tortuga-del-cortes/` | Juego 01 · arcade: HTML5, instalable como app y listo para empaquetar para Google Play (ver su README) |
