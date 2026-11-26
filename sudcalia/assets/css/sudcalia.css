@@ -270,3 +270,36 @@ body.t-terror { --fondo: #0B1214; --fondo-2: #131E21; --principal: #DCE6E6; --so
 .trailer-video { width: 100%; aspect-ratio: 9 / 16; border-radius: var(--radius-lg); background: #0C0F14; object-fit: cover; box-shadow: 0 18px 50px rgba(0,0,0,.35); }
 .serie.destacada.serie-datil { background: linear-gradient(180deg, rgba(12,15,20,0) 40%, rgba(12,15,20,.9)), url("../video/datil-amargo-trailer-t1.jpg") center / cover; text-decoration: none; }
 @media (max-width: 820px) { .trailer { grid-template-columns: 1fr; } .trailer-video { max-width: 340px; margin-inline: auto; } }
+
+/* ---- Sudcalia Play · reproductor con lista de episodios ---- */
+.reproductor { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: clamp(24px, 4vw, 56px); align-items: start; }
+.rep-pantalla { position: relative; position: sticky; top: 84px; }
+.rep-video { width: 100%; aspect-ratio: 9 / 16; border-radius: var(--radius-lg); background: #000; object-fit: cover; box-shadow: 0 18px 50px rgba(0,0,0,.35); display: block; }
+.rep-siguiente { position: absolute; inset: auto 12px 64px 12px; padding: 16px; border-radius: var(--radius-md); background: rgba(12,15,20,.92); border: 1px solid var(--borde); color: var(--tinta); }
+.rep-siguiente p { margin: 0 0 12px; font-weight: 600; }
+.rep-siguiente .botones { margin: 0; gap: 8px; }
+.rep-siguiente .boton { height: 40px; padding: 0 16px; font-size: 14px; }
+.rep-info h2 { margin-top: 0; }
+.rep-continuar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; margin: 16px 0; border-radius: var(--radius-md); background: rgba(255,255,255,.06); border: 1px solid var(--borde); }
+.rep-continuar .boton { height: 40px; padding: 0 18px; font-size: 14px; }
+.rep-temporadas { display: flex; gap: 8px; flex-wrap: wrap; margin: 24px 0 12px; }
+.rep-tab { font: 600 14px var(--font-sans); padding: 8px 16px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--tinta-suave); cursor: pointer; }
+.rep-tab[aria-selected="true"] { background: var(--principal); border-color: var(--principal); color: var(--sobre-principal); }
+.rep-tab:disabled { cursor: default; opacity: .55; }
+.rep-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rep-item { width: 100%; display: flex; align-items: center; gap: 14px; padding: 8px; border-radius: var(--radius-md); border: 1px solid transparent; background: rgba(255,255,255,.04); color: var(--tinta); font: inherit; text-align: left; cursor: pointer; transition: background .15s, border-color .15s; }
+button.rep-item:hover { background: rgba(255,255,255,.09); }
+.rep-item.activo { border-color: var(--principal); background: rgba(209,90,40,.14); }
+.rep-item.bloqueado { cursor: default; opacity: .5; }
+.rep-mini { flex: 0 0 auto; width: 54px; aspect-ratio: 9 / 16; border-radius: 8px; background: #1A2029 center / cover no-repeat; display: grid; place-items: center; font: 600 18px var(--font-display); color: var(--tinta-suave); }
+.rep-item-texto { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.rep-item-texto small { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--acento); }
+.rep-item-texto strong { font-size: 16px; }
+.rep-visto { font-style: normal; font-size: 12px; color: #7EE0A1; }
+.rep-barra { display: block; height: 4px; border-radius: 4px; background: rgba(255,255,255,.12); overflow: hidden; margin-top: 4px; }
+.rep-barra span { display: block; height: 100%; background: var(--principal); }
+@media (max-width: 820px) {
+  .reproductor { grid-template-columns: 1fr; }
+  .rep-pantalla { position: relative; top: 0; max-width: 360px; width: 100%; margin-inline: auto; }
+}
+.rep-continuar[hidden], .rep-siguiente[hidden] { display: none; }

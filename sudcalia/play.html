@@ -29,68 +29,27 @@
       <span class="etiqueta">Sudcalia Play · Próximamente</span>
       <h1>Dale play al sur.</h1>
       <p class="lead">La plataforma donde verás las series y videonovelas de Sudcalia Estudios, en tu celular, tu computadora o tu tele.</p>
-      <div class="botones"><a class="boton" href="#registro">Quiero acceso anticipado</a><a class="boton secundario" href="#capitulo-3">Ver Dátil Amargo · Capítulo 3</a></div>
+      <div class="botones"><a class="boton" href="#registro">Quiero acceso anticipado</a><a class="boton secundario" href="#ver">Ver Dátil Amargo</a></div>
     </div>
     <img class="simbolo" src="assets/logos/play-simbolo.png" alt="Símbolo de Sudcalia Play">
   </div>
 </section>
-<section id="trailer" class="banda trailer-banda">
-  <div class="contenedor trailer">
-    <video class="trailer-video" controls playsinline preload="metadata" poster="assets/video/datil-amargo-trailer-t1.jpg">
-      <source src="assets/video/datil-amargo-trailer-t1.mp4" type="video/mp4">
-      Tu navegador no puede reproducir este video.
-    </video>
-    <div>
-      <span class="etiqueta">Tráiler · Estreno</span>
-      <h2>Dátil Amargo.</h2>
-      <p class="suave">Durante 30 años una familia del oasis de San Dátil guardó un secreto, hasta que llegó una forastera con la verdad en sus manos. Una frutinovela de Sudcalia Estudios.</p>
-      <div class="datos"><div class="dato"><strong>T1</strong>primera temporada</div><div class="dato"><strong>9:16</strong>hecha para tu celular</div><div class="dato"><strong>BCS</strong>ambientada en el oasis de San Dátil</div></div>
-      <div class="botones"><a class="boton" href="#registro">Avísame del estreno</a></div>
+<section id="ver" class="banda" data-reproductor>
+  <div class="contenedor reproductor">
+    <div class="rep-pantalla">
+      <video class="rep-video" controls playsinline preload="metadata"></video>
+      <div class="rep-siguiente" hidden role="status" aria-live="polite">
+        <p class="rep-siguiente-texto"></p>
+        <div class="botones"><button type="button" class="boton rep-siguiente-ya">Ver ahora</button><button type="button" class="boton secundario rep-siguiente-cancelar">Cancelar</button></div>
+      </div>
     </div>
-  </div>
-</section>
-<section id="capitulo-1" class="banda trailer-banda">
-  <div class="contenedor trailer">
-    <video class="trailer-video" controls playsinline preload="metadata" poster="assets/video/datil-amargo-t1-cap01.jpg">
-      <source src="assets/video/datil-amargo-t1-cap01.mp4" type="video/mp4">
-      Tu navegador no puede reproducir este video.
-    </video>
-    <div>
-      <span class="etiqueta">Dátil Amargo · Temporada 1 · Capítulo 1</span>
-      <h2>La forastera.</h2>
-      <p class="suave">Ya puedes ver el primer capítulo de Dátil Amargo. En el oasis de San Dátil todo crece despacio… hasta que llega ella.</p>
-      <div class="datos"><div class="dato"><strong>Cap. 1</strong>ya disponible</div><div class="dato"><strong>2:32</strong>minutos</div><div class="dato"><strong>9:16</strong>hecho para tu celular</div></div>
-      <div class="botones"><a class="boton" href="#capitulo-2">Ver el capítulo 2</a><a class="boton secundario" href="#trailer">Ver el tráiler</a></div>
-    </div>
-  </div>
-</section>
-<section id="capitulo-2" class="banda trailer-banda">
-  <div class="contenedor trailer">
-    <video class="trailer-video" controls playsinline preload="metadata" poster="assets/video/datil-amargo-t1-cap02.jpg">
-      <source src="assets/video/datil-amargo-t1-cap02.mp4" type="video/mp4">
-      Tu navegador no puede reproducir este video.
-    </video>
-    <div>
-      <span class="etiqueta">Dátil Amargo · Temporada 1 · Capítulo 2</span>
-      <h2>Agua turbia.</h2>
-      <p class="suave">Higinio le cierra el agua a La Esperanza y el palmar empieza a secarse. Alma recuerda una acequia olvidada que podría salvarlo todo… mientras alguien los vigila desde la loma.</p>
-      <div class="datos"><div class="dato"><strong>Cap. 2</strong>ya disponible</div><div class="dato"><strong>2:52</strong>minutos</div><div class="dato"><strong>9:16</strong>hecho para tu celular</div></div>
-      <div class="botones"><a class="boton" href="#capitulo-3">Ver el capítulo 3</a><a class="boton secundario" href="#capitulo-1">Ver el capítulo 1</a></div>
-    </div>
-  </div>
-</section>
-<section id="capitulo-3" class="banda trailer-banda">
-  <div class="contenedor trailer">
-    <video class="trailer-video" controls playsinline preload="metadata" poster="assets/video/datil-amargo-t1-cap03.jpg">
-      <source src="assets/video/datil-amargo-t1-cap03.mp4" type="video/mp4">
-      Tu navegador no puede reproducir este video.
-    </video>
-    <div>
-      <span class="etiqueta">Dátil Amargo · Temporada 1 · Capítulo 3</span>
-      <h2>Veneno de guayaba.</h2>
-      <p class="suave">Desaparece el dinero de la raya y una flor blanca apunta a la forastera. Remedios la echa de La Esperanza… pero en San Dátil nada se queda escondido mucho tiempo.</p>
-      <div class="datos"><div class="dato"><strong>Cap. 3</strong>ya disponible</div><div class="dato"><strong>2:29</strong>minutos</div><div class="dato"><strong>9:16</strong>hecho para tu celular</div></div>
-      <div class="botones"><a class="boton" href="#registro">Avísame del capítulo 4</a><a class="boton secundario" href="#capitulo-2">Ver el capítulo 2</a></div>
+    <div class="rep-info">
+      <span class="etiqueta rep-etiqueta">Dátil Amargo · Temporada 1</span>
+      <h2 class="rep-titulo">Dátil Amargo</h2>
+      <p class="suave rep-sinopsis">Una frutinovela de Sudcalia Estudios ambientada en el oasis de San Dátil.</p>
+      <div class="rep-continuar" hidden><span></span><button type="button" class="boton">Continuar</button></div>
+      <div class="rep-temporadas" role="tablist" aria-label="Temporadas"></div>
+      <ol class="rep-lista" aria-label="Episodios"></ol>
     </div>
   </div>
 </section>
@@ -99,7 +58,7 @@
     <div class="intro"><span class="etiqueta">Catálogo</span><h2>Primeros estrenos.</h2></div>
     <div class="fila-series">
       <div class="serie destacada">Bajo la lluvia de los robles<br>Temporada 1 · En producción</div>
-      <a class="serie destacada serie-datil" href="#capitulo-1">Dátil Amargo<br>Temporada 1 · Capítulos 1 al 3 disponibles</a><div class="serie">Próximamente</div><div class="serie">Próximamente</div><div class="serie">Próximamente</div>
+      <a class="serie destacada serie-datil" href="#ver">Dátil Amargo<br>Temporada 1 · Capítulos 1 al 3 disponibles</a><div class="serie">Próximamente</div><div class="serie">Próximamente</div><div class="serie">Próximamente</div>
     </div>
     <div class="datos"><div class="dato"><strong>HD</strong>en cualquier pantalla</div><div class="dato"><strong>12</strong>episodios por temporada</div><div class="dato"><strong>100%</strong>historias originales</div></div>
   </div>
@@ -138,5 +97,6 @@
 </footer>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/reproductor.js"></script>
 </body>
 </html>
