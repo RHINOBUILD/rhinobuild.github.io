@@ -34,7 +34,9 @@
           { numero: 6, titulo: "La noche del quinqué", disponible: true, duracion: "1:50",
             video: "assets/video/datil-amargo-t1-cap06.mp4", poster: "assets/video/datil-amargo-t1-cap06.jpg",
             sinopsis: "Remedios lo niega todo y quema la foto de Esperanza. En los libros de la misión, Alma encuentra un acta imposible… y una firma que lo cambia todo." },
-          { numero: 7, disponible: false },
+          { numero: 7, titulo: "Limón partido", disponible: true, duracion: "1:50",
+            video: "assets/video/datil-amargo-t1-cap07.mp4", poster: "assets/video/datil-amargo-t1-cap07.jpg",
+            sinopsis: "Alma descubre en su morral la escritura que explica por qué dieron por muerta a su abuela. Toño, despechado, se alía con Leticia, y en el arroyo le roban el morral… con el secreto adentro." },
           { numero: 8, disponible: false },
           { numero: 9, disponible: false },
           { numero: 10, disponible: false }
